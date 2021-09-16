@@ -21,12 +21,12 @@ client.once('ready', async () => {
     console.log(`Logged in as ${client.user!.tag}!`)
 
     const clientId = client.user!.id
-    //await registerCommands(clientId, TOKEN)
+    await registerCommands(clientId, TOKEN)
 
     try {
         await client.user!.setPresence({
             activities: [{
-                name: 'Fortnite',
+                name: `${PREFIX}help`,
                 type: 'COMPETING'
             }]
         })
