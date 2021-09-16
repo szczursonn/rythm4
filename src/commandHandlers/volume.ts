@@ -6,6 +6,10 @@ export const volumeHandler = (session: Session | undefined, volume: number, repl
         reply(':x: **I am not active on this server**')
         return
     }
+    if (isNaN(volume)) {
+        reply(':x: Nice try.')
+        return
+    }
     
     session.volume = volume
     try {
