@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
+  "engines": {
+    "node": "16.x",
+    "npm": "7.20.6"
+  },
   "scripts": {
-    "start": "ts-node src/app.ts",
-    "build": "tsc app.ts"
+    "start": "ts-node src/app.ts"
   },
   "author": "szczursonn",
   "license": "ISC",
@@ -17,19 +20,16 @@
     "discord-api-types": "^0.23.1",
     "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",
-    "erlpack": "^0.1.3",
     "ffmpeg": "^0.0.4",
     "ffmpeg-static": "^4.4.0",
     "libsodium-wrappers": "^0.7.9",
     "opusscript": "^0.0.8",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3",
     "usetube": "^2.1.3",
     "utf-8-validate": "^5.0.5",
     "ytdl-core-discord": "^1.3.1",
     "ytfps": "^1.0.5",
     "zlib-sync": "^0.1.7"
-  },
-  "devDependencies": {
-    "ts-node": "^10.2.1",
-    "typescript": "^4.4.3"
   }
 }
