@@ -2,9 +2,9 @@ import { MessageEmbed, MessageOptions } from "discord.js"
 
 export const helpHandler = async (PREFIX: string, reply: (msg: MessageOptions | string)=>any) => {
     const embed = new MessageEmbed()
-            .setTitle(`List of commands`)
+            .setTitle(`List of commands for Rythm4`)
             .setColor('#0189df')
-            .setURL('https://github.com/szczursonn/Rythm4/blob/master/Rythm4/README.md')
+            .setURL('https://github.com/szczursonn/Rythm4')
                 .setDescription('Prefix: **' + PREFIX + '**')
                 .addFields(
                     { name: ':play_pause: Play', value: `**${PREFIX}play** or **${PREFIX}p**`, inline: true },
