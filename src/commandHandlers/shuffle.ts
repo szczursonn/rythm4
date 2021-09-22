@@ -14,17 +14,18 @@ const shuffleArray = (array: any[]) => {
 
 export const shuffleHandler = async (session: Session | undefined, reply: (msg: MessageOptions | string)=>any) => {
     if (!session) {
-        reply(':x: **I am not active on this server**')
+        await reply(':x: **I am not active on this server**')
         return
     }
 
     const queue = session.queue
 
     if (queue.length < 2) {
-        reply(':interrobang: **There is nothing to shuffle!**')
+        await reply(':interrobang: **There is nothing to shuffle!**')
         return
     }
 
     shuffleArray(queue)
-    reply(':cyclone: **Shuffled the queue!**')
+    await reply(':cyclone: **Shuffled the queue!**')
+    return
 }

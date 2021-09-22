@@ -5,7 +5,7 @@ import { formatSongDuration } from "../utils"
 
 export const queueHandler = async (session: Session | undefined, guildName: string , reply: (msg: MessageOptions | string)=>any) => {
     if (!session) {
-        reply(':x: **I am not active on this server**')
+        await reply(':x: **I am not active on this server**')
         return
     }
     const embed = new MessageEmbed()
@@ -18,7 +18,6 @@ export const queueHandler = async (session: Session | undefined, guildName: stri
             value: '\u2800',
             inline: false
         })
-        
     } else {
         embed.addFields({
             name: `__Playing now__: ${session.currentlyPlaying.title}${session.audioPlayer.state.status === AudioPlayerStatus.Paused ? ' | PAUSED' : ''}`,
@@ -46,5 +45,6 @@ export const queueHandler = async (session: Session | undefined, guildName: stri
         embed.setDescription(`Queue length: **${formatSongDuration(queueDuration)}**\nLooping: ${session.looping ? ':green_circle:' : ':red_circle:'}\nVolume: **${session.volume}**`)
     }
 
-    reply({embeds: [embed]})
+    await reply({embeds: [embed]})
+    return
 }

@@ -29,7 +29,7 @@ export const playHandler = async (session: Session | undefined, sender: GuildMem
 
         session = new Session(voiceConnection, guildId)
 
-        reply(`:thumbsup: **Joined voice channel \`${channel.name}\`!**`)
+        await reply(`:thumbsup: **Joined voice channel \`${channel.name}\`!**`)
     }
     
     const isPossiblyPlaylist = arg.includes('list')
@@ -37,10 +37,9 @@ export const playHandler = async (session: Session | undefined, sender: GuildMem
     if (isPossiblyPlaylist) {
         try {
             const res = await ytfps(arg)
-            const urls = res.videos.map((video: any)=>video.url) as string[]
-            reply(`:notes: **Adding ${urls.length} songs to the queue, this might take a while!**`)
+            const urls = res.videos.map((video: any)=>video.url)
             
-            const promises: Promise<Song>[] = urls.map((url)=>Song.from(url, sender.id))
+            const promises: Promise<Song>[] = urls.map(url=>Song.from(url, sender.id))
 
             const songs: Song[] = (await Promise.allSettled(promises))
             .filter((result)=>result.status === 'fulfilled')
@@ -50,14 +49,12 @@ export const playHandler = async (session: Session | undefined, sender: GuildMem
                 session.enqueue(song)
             }
 
-            reply(`:notes: **Added ${songs.length} songs to the queue!**${songs.length === urls.length ? '' : `, failed to add ${urls.length-songs.length} songs`}`)
+            await reply(`:notes: **Added ${songs.length} songs to the queue!**${songs.length === urls.length ? '' : `, failed to add ${urls.length-songs.length} songs`}`)
             return
         } catch (e) {
             if (String(e).includes('private')) {
-                reply(':octagonal_sign: **This playlist is private or broken**')
+                await reply(':octagonal_sign: **This playlist is private or broken**')
                 if (!arg.includes('watch?v=')) return
-            } else {
-                console.log(e)
             }
         }
     }
@@ -74,10 +71,10 @@ export const playHandler = async (session: Session | undefined, sender: GuildMem
         }   
     }
     if (!song) {
-        reply(':octagonal_sign: Failed to resolve searchphrase/url, or the video is age-restricted')
+        await reply(':octagonal_sign: Failed to resolve searchphrase/url, or the video is age-restricted')
         return
     }
     session.enqueue(song)
-    reply(`:notes: **Added \`${song.title}\` to the queue!**`)
-
+    await reply(`:notes: **Added \`${song.title}\` to the queue!**`)
+    return
 }

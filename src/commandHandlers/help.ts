@@ -19,5 +19,6 @@ export const helpHandler = async (PREFIX: string, reply: (msg: MessageOptions | 
                     { name: '\:question: Help', value: `**${PREFIX}help**`, inline: true },
                 )
 
-    reply({embeds: [embed]})
+    await reply({embeds: [embed]})
+    return
 }
