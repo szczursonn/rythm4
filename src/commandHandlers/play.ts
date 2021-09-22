@@ -1,5 +1,5 @@
-import { GuildMember, MessageOptions, StageChannel, VoiceChannel } from "discord.js";
-import { joinVoiceChannel } from "@discordjs/voice";
+import { GuildMember, MessageOptions, Permissions, StageChannel, VoiceChannel } from "discord.js";
+import { entersState, joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
 import ytfps from 'ytfps';
 
 import Session from "../Session";
@@ -21,15 +21,27 @@ export const playHandler = async (session: Session | undefined, sender: GuildMem
     const guildId = sender.guild.id
 
     if (!session) {
+        const myPermissions = channel.permissionsFor(channel.guild.me!)
+        if (!myPermissions.has(Permissions.FLAGS.CONNECT)) {
+            await reply(`:x: **I don't have permission to join your voice channel!**`)
+            return
+        }
+
         const voiceConnection = joinVoiceChannel({
             channelId: channel.id,
             guildId,
             adapterCreator: channel.guild.voiceAdapterCreator
         })
 
-        session = new Session(voiceConnection, guildId)
+        try {
+            await entersState(voiceConnection, VoiceConnectionStatus.Ready, 10*1000)
+            await reply(`:thumbsup: **Joined voice channel \`${channel.name}\`!**`)
+        } catch (e) {
+            await reply(`:x: **Failed to join voice channel: \`\`\`${e}\`\`\`**`)
+            return
+        }
 
-        await reply(`:thumbsup: **Joined voice channel \`${channel.name}\`!**`)
+        session = new Session(voiceConnection, guildId)
     }
     
     const isPossiblyPlaylist = arg.includes('list')
