@@ -2,8 +2,6 @@ import { Snowflake } from "discord.js"
 import { REST } from '@discordjs/rest'
 import { Routes } from "discord-api-types/v9"
 
-const DEV_GUILD_ID = '702087231380389889'   // TMP
-
 const commands = [{
     name: 'play',
     description: 'Adds a requested song to the queue',
@@ -50,14 +48,19 @@ const commands = [{
 }, {
     name: 'help',
     description: 'Show the list of commands'
+}, {
+    name: 'clear',
+    description: 'Clear the queue'
 }]
 
 export const registerCommands = async (clientId: Snowflake, token: string): Promise<void> => {
     const rest = new REST({
         version: '9'
     }).setToken(token)
-
-    //await rest.put(Routes.applicationGuildCommands(clientId, DEV_GUILD_ID), {body: commands})
+    /*
+    const DEV_GUILD_ID = '702087231380389889'   // TMP
+    await rest.put(Routes.applicationGuildCommands(clientId, DEV_GUILD_ID), {body: commands})
+    */
     await rest.put(Routes.applicationCommands(clientId), {body: commands})
     
     console.log('Reloaded slash commands')

@@ -1,3 +1,4 @@
+export * from './clear'
 export * from './disconnect'
 export * from './help'
 export * from './loop'

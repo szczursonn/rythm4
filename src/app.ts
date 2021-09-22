@@ -1,7 +1,7 @@
 require('dotenv').config()
 import { Client, CommandInteraction, GuildMember, Intents, MessageOptions } from "discord.js";
 import Session from "./Session";
-import { disconnectHandler, helpHandler, loopHandler, pauseHandler, playHandler, queueHandler, shuffleHandler, skipHandler, unpauseHandler, volumeHandler } from "./commandHandlers";
+import { clearHandler, disconnectHandler, helpHandler, loopHandler, pauseHandler, playHandler, queueHandler, shuffleHandler, skipHandler, unpauseHandler, volumeHandler } from "./commandHandlers";
 import { registerCommands } from "./utils";
 
 const noop = () => {}
@@ -118,6 +118,8 @@ const handleCommand = async (cmd: string, arg: string, sender: GuildMember, repl
             return unpauseHandler(session, reply)
         case 'help':
             return helpHandler(PREFIX, reply)
+        case 'clear':
+            return clearHandler(session, reply)
         default:
             return reply(':x: **Invalid command**')
     }
