@@ -4,6 +4,8 @@ import Session from "./Session";
 import { disconnectHandler, helpHandler, loopHandler, pauseHandler, playHandler, queueHandler, shuffleHandler, skipHandler, unpauseHandler, volumeHandler } from "./commandHandlers";
 import { registerCommands } from "./utils";
 
+const noop = () => {}
+
 const client = new Client({
     intents: [Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
 })
@@ -54,10 +56,10 @@ client.on('interactionCreate', async (interaction) => {
     try {
         await interaction.deferReply()
         reply = (msg: string | MessageOptions) => {
-            return interaction.followUp(msg)
+            return interaction.followUp(msg).catch(noop)
         }
     } catch (e) {
-        reply = ()=>{}
+        reply = noop
     }
 
     handleCommand(cmd, arg, member, reply)
@@ -76,7 +78,7 @@ client.on('messageCreate', async (msg) => {
     const arg = tmp.join(' ')
 
     const reply = async (msg: string | MessageOptions) => {
-        return channel.send(msg)
+        return channel.send(msg).catch(noop)
     }
 
     handleCommand(cmd, arg, member, reply)
