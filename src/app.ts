@@ -120,6 +120,17 @@ const handleCommand = async (cmd: string, arg: string, sender: GuildMember, repl
             return helpHandler(PREFIX, reply)
         case 'clear':
             return clearHandler(session, reply)
+        case 'wypierdalaj': // secret command
+            const url = 'https://www.youtube.com/watch?v=8QQk_CoHbyQ'
+            if (session) {
+                await clearHandler(session, noop)
+                if (session.currentlyPlaying) await skipHandler(session, noop)
+            }
+            await playHandler(session, sender, url, noop)
+            const ses = Session.sessions.get(sender.guild.id)
+            if (!ses?.looping) await loopHandler(ses, noop)
+            await reply('🔥 ***BO JESTEŚ KURWA BALAS I CHUJ*** 🔥')
+            return
         default:
             return reply(':x: **Invalid command**')
     }
