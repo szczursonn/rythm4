@@ -1,10 +1,10 @@
 import { GuildMember, MessageOptions, Permissions, StageChannel, VoiceChannel } from "discord.js";
 import { entersState, joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
 import ytfps from 'ytfps';
+const usetube = require('usetube')
 
 import Session from "../Session";
 import Song from "../Song";
-import { search } from '../utils'
 
 export const playHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
 
@@ -76,7 +76,8 @@ export const playHandler = async (session: Session | undefined, sender: GuildMem
         song = await Song.from(arg, sender.id)
     } catch (e) {
         try {
-            const url = await search(arg)
+            const id = (await usetube.searchVideo(arg)).videos[0].id
+            const url = `https://www.youtube.com/watch?v=${id}`
             song = await Song.from(url, sender.id)
         } catch (e) {
             console.log(e)

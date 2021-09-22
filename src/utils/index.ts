@@ -1,3 +1,2 @@
-export * from './registerSlashCommands'
-export * from './search'
 export * from './formatSongDuration'
+export * from './registerSlashCommands'
