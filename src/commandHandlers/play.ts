@@ -1,9 +1,10 @@
-import { joinVoiceChannel } from "@discordjs/voice";
 import { GuildMember, MessageOptions, StageChannel, VoiceChannel } from "discord.js";
-import Session, { sessions } from "../Session";
+import { joinVoiceChannel } from "@discordjs/voice";
+import ytfps from 'ytfps';
+
+import Session from "../Session";
 import Song from "../Song";
 import { search } from '../utils'
-const ytfps = require('ytfps');
 
 export const playHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
 
@@ -26,14 +27,9 @@ export const playHandler = async (session: Session | undefined, sender: GuildMem
             adapterCreator: channel.guild.voiceAdapterCreator
         })
 
-        const onDestroy = () => {
-            sessions.delete(guildId)
-        }
-
-        session = new Session(voiceConnection, onDestroy)
+        session = new Session(voiceConnection, guildId)
 
         reply(`:thumbsup: **Joined voice channel \`${channel.name}\`!**`)
-        sessions.set(guildId, session)
     }
     
     const isPossiblyPlaylist = arg.includes('list')

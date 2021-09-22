@@ -1,6 +1,6 @@
 require('dotenv').config()
-import { Client, CommandInteraction, Guild, GuildMember, Intents, MessageOptions } from "discord.js";
-import { sessions } from "./Session";
+import { Client, CommandInteraction, GuildMember, Intents, MessageOptions } from "discord.js";
+import Session from "./Session";
 import { disconnectHandler, helpHandler, loopHandler, pauseHandler, playHandler, queueHandler, shuffleHandler, skipHandler, unpauseHandler, volumeHandler } from "./commandHandlers";
 import { registerCommands } from "./utils";
 
@@ -16,15 +16,18 @@ if (!TOKEN) {
     console.log('Token not provided')
     process.exit(-1)
 }
+client.login(TOKEN)
 
 client.once('ready', async () => {
     console.log(`Logged in as ${client.user!.tag}!`)
 
-    const clientId = client.user!.id
-    await registerCommands(clientId, TOKEN)
+    try {
+        const clientId = client.user!.id
+        await registerCommands(clientId, TOKEN)
+    } catch (e) {}
 
     try {
-        await client.user!.setPresence({
+        client.user!.setPresence({
             activities: [{
                 name: `${PREFIX}help`,
                 type: 'COMPETING'
@@ -44,120 +47,76 @@ client.on('interactionCreate', async (interaction) => {
         return
     }
 
-    const session = sessions.get(interaction.guildId)
+    const cmd = interaction.commandName
+    const arg = interaction.options.get('song')?.value?.toString() || interaction.options.get('volume')?.value?.toString() || ''
 
-    await interaction.deferReply()
-    const reply = (msg: string | MessageOptions) => {
-        interaction.followUp(msg)
+    let reply
+    try {
+        await interaction.deferReply()
+        reply = (msg: string | MessageOptions) => {
+            return interaction.followUp(msg)
+        }
+    } catch (e) {
+        reply = ()=>{}
     }
 
-    switch (interaction.commandName) {
-        case 'play':
-            const arg = interaction.options.get('song')?.value
-            if (typeof arg !== 'string') {
-                return
-            }
-            await playHandler(session, member, arg, reply)
-            break
-        case 'disconnect':
-            disconnectHandler(session, reply)
-            break
-        case 'queue':
-            queueHandler(session, member.guild.name, reply)
-            break
-        case 'skip':
-            skipHandler(session, reply)
-            break
-        case 'loop':
-            loopHandler(session, reply)    
-            break
-        case 'shuffle':
-            shuffleHandler(session, reply)
-            break
-        case 'volume':
-            const volume = interaction.options.get('volume')?.value
-            if (typeof volume !== 'number') {
-                return
-            }
-            volumeHandler(session, volume, reply)
-            break
-        case 'pause':
-            pauseHandler(session, reply)
-            break
-        case 'unpause':
-            unpauseHandler(session, reply)
-            break
-        case 'help':
-            helpHandler(PREFIX, reply)
-            break
-        default:
-            await interaction.reply(':x: **Invalid command**')
-            break
-    }
-
+    handleCommand(cmd, arg, member, reply)
+    return 
 })
 
 client.on('messageCreate', async (msg) => {
-    if (!msg.guild || !msg.content || !msg.channel || !msg.guild || !msg.content.startsWith(PREFIX) || msg.content === PREFIX) return
+    if (!msg.guild || !msg.content || !msg.channel || !msg.guild || !msg.content.startsWith(PREFIX)) return
 
-    const guild = msg.guild as Guild
     const channel = msg.channel
-    const member = msg.member as GuildMember
+    const member = msg.member
+    if (!member) return
 
     let tmp = msg.content.substr(PREFIX.length).split(' ')
-    const cmd = tmp.shift()?.toLowerCase()
+    const cmd = tmp.shift()?.toLowerCase() || ''
     const arg = tmp.join(' ')
 
-    const session = sessions.get(guild.id)
-
     const reply = async (msg: string | MessageOptions) => {
-        await channel.send(msg)
+        return channel.send(msg)
     }
+
+    handleCommand(cmd, arg, member, reply)
+    return 
+})
+
+const handleCommand = async (cmd: string, arg: string, sender: GuildMember, reply: (msg: MessageOptions | string)=>any) => {
+
+    const session = Session.sessions.get(sender.guild.id)
 
     switch (cmd) {
         case 'play':
         case 'p':
-            await playHandler(session, member, arg, reply)
-            break
+            return playHandler(session, sender, arg, reply)
         case 'disconnect':
         case 'dc':
         case 'fuckoff':
-            disconnectHandler(session, reply)
-            break
+            return disconnectHandler(session, reply)
         case 'queue':
         case 'q':
-            queueHandler(session, guild.name, reply)
-            break
+            return queueHandler(session, sender.guild.name, reply)
         case 'skip':
+        case 'fs':
         case 's':
-            skipHandler(session, reply)
-            break
+            return skipHandler(session, reply)
         case 'loop':
-            loopHandler(session, reply)    
-            break
+            return loopHandler(session, reply)    
         case 'shuffle':
-            shuffleHandler(session, reply)
-            break
+            return shuffleHandler(session, reply)
         case 'volume':
         case 'vol':
-        case 'v':
-            const volume = parseFloat(arg)
-            volumeHandler(session, volume, reply)
-            break
+            return volumeHandler(session, arg, reply)
         case 'pause':
-            pauseHandler(session, reply)
-            break
+            return pauseHandler(session, reply)
         case 'unpause':
         case 'resume':
-            unpauseHandler(session, reply)
-            break
+            return unpauseHandler(session, reply)
         case 'help':
-            helpHandler(PREFIX, reply)
-            break
+            return helpHandler(PREFIX, reply)
         default:
-            await reply(':x: **Invalid command**')
-            break
+            return reply(':x: **Invalid command**')
     }
-})
-
-client.login(TOKEN)
+}

@@ -1,5 +1,5 @@
-import { AudioPlayerStatus } from "@discordjs/voice"
 import { MessageOptions } from "discord.js"
+import { AudioPlayerStatus } from "@discordjs/voice"
 import Session from "../Session"
 
 export const pauseHandler = (session: Session | undefined, reply: (msg: MessageOptions | string)=>any) => {

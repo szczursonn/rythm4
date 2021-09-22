@@ -1,11 +1,12 @@
 import { MessageOptions } from "discord.js"
 import Session from "../Session"
 
-export const volumeHandler = (session: Session | undefined, volume: number, reply: (msg: MessageOptions | string)=>any) => {
+export const volumeHandler = (session: Session | undefined, arg: string, reply: (msg: MessageOptions | string)=>any) => {
     if (!session) {
         reply(':x: **I am not active on this server**')
         return
     }
+    const volume = parseFloat(arg)
     if (isNaN(volume)) {
         reply(':x: Nice try.')
         return

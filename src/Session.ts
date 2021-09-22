@@ -1,7 +1,8 @@
-import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, entersState, VoiceConnection, VoiceConnectionDisconnectReason, VoiceConnectionStatus } from "@discordjs/voice";
 import { Snowflake } from "discord.js";
-import Song from "./Song";
+import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, entersState, VoiceConnection, VoiceConnectionDisconnectReason, VoiceConnectionStatus } from "@discordjs/voice";
 import { promisify } from 'util'
+
+import Song from "./Song";
 
 const wait = promisify(setTimeout)
 
@@ -13,20 +14,20 @@ class Session {
     public readyLock: boolean
     public looping: boolean
     public volume: number
-    private onDestroy: ()=>void
     public volumeTransformer: any
+    public static sessions: Map<Snowflake,Session> = new Map()
+    private guildId: string;
 
-    static sessions:Map<Snowflake,Session> = new Map()
-
-    constructor(voiceConnection: VoiceConnection, onDestroy: ()=>void) {
+    constructor(voiceConnection: VoiceConnection, guildId: Snowflake) {
+        Session.sessions.set(guildId, this)
         this.voiceConnection = voiceConnection
         this.audioPlayer = createAudioPlayer()
         this.queue = []
         this.currentlyPlaying = null
         this.readyLock = false
-        this.onDestroy = onDestroy
         this.looping = false
         this.volume = 1
+        this.guildId = guildId
 
         // https://github.com/discordjs/voice/blob/main/examples/music-bot/src/music/subscription.ts#L32
         this.voiceConnection.on('stateChange', async (oldState, newState) => {
@@ -78,8 +79,7 @@ class Session {
         this.queue = []
         if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) this.voiceConnection.destroy()
         this.audioPlayer.stop(true)
-        this.onDestroy()
-        this.onDestroy = ()=>{} // prevent being called multiple times
+        Session.sessions.delete(this.guildId)
     }
 
     async advanceQueue() {
@@ -112,5 +112,3 @@ class Session {
 }
 
 export default Session
-
-export const sessions = Session.sessions

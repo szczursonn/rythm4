@@ -1,8 +1,6 @@
 import { AudioResource, createAudioResource } from "@discordjs/voice"
-import { getInfo } from "ytdl-core-discord"
-import ytdl from 'ytdl-core-discord'
-import { Snowflake } from "discord-api-types"
-import { finished } from 'stream'
+import { Snowflake } from "discord.js"
+import ytdl, { getInfo } from "ytdl-core-discord"
 
 interface SongInfo {
     title: string,
@@ -11,7 +9,6 @@ interface SongInfo {
     duration: string,
     addedBy: string,
 }
-
 
 class Song {
     public readonly title: string
@@ -31,11 +28,6 @@ class Song {
     public async createAudioResource(): Promise<AudioResource> {
         const stream = await ytdl(this.url, {
             highWaterMark: 1<<25
-        })
-        finished(stream, (err) => {
-            if (err) {
-                console.log(`ytdl stream failed: ${err}`)
-            }
         })
         return createAudioResource(stream, {
             inlineVolume: true
