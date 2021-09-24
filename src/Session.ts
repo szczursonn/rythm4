@@ -78,6 +78,7 @@ class Session {
     }
 
     destroy() {
+        this.destroy = ()=>{}   // Can only be called once
         this.queue = []
         if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) this.voiceConnection.destroy()
         this.audioPlayer.stop(true)
