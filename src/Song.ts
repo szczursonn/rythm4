@@ -29,6 +29,10 @@ class Song {
         const stream = await ytdl(this.url, {
             highWaterMark: 1<<25
         })
+        // After catching stream error, the song gets skipped
+        stream.on('error', (err) => {
+            console.log(`YTDL stream error: ${err}`)
+        })
         return createAudioResource(stream, {
             inlineVolume: true
         })
