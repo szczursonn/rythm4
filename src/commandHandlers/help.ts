@@ -5,7 +5,7 @@ export const helpHandler = async (PREFIX: string, reply: (msg: MessageOptions | 
             .setTitle(`List of commands for Rythm4`)
             .setColor('#0189df')
             .setURL('https://github.com/szczursonn/Rythm4')
-                .setDescription('Prefix: **' + PREFIX + '**')
+                .setDescription(`Prefix: **${PREFIX}**`)
                 .addFields(
                     { name: ':play_pause: Play', value: `**${PREFIX}play** or **${PREFIX}p**`, inline: true },
                     { name: ':track_next: Skip', value: `**${PREFIX}skip** or **${PREFIX}s**`, inline: true },
