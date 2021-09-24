@@ -68,6 +68,8 @@ class Session {
 
         this.voiceConnection.subscribe(this.audioPlayer)
 
+
+        console.log(`Session created on guild ${this.guildId}`)
     }
 
     enqueue(song: Song) {
@@ -80,6 +82,7 @@ class Session {
         if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) this.voiceConnection.destroy()
         this.audioPlayer.stop(true)
         Session.sessions.delete(this.guildId)
+        console.log(`Session destroyed on guild ${this.guildId}`)
     }
 
     async advanceQueue() {
