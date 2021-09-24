@@ -1,7 +1,7 @@
 require('dotenv').config()
 import { Client, CommandInteraction, GuildMember, Intents, MessageOptions } from "discord.js";
 import Session from "./Session";
-import { clearHandler, disconnectHandler, helpHandler, loopHandler, pauseHandler, playHandler, queueHandler, shuffleHandler, skipHandler, unpauseHandler, volumeHandler } from "./commandHandlers";
+import { clearHandler, disconnectHandler, helpHandler, loopHandler, pauseHandler, playHandler, queueHandler, shuffleHandler, skipHandler, statusHandler, unpauseHandler, volumeHandler } from "./commandHandlers";
 import { registerCommands } from "./utils";
 
 const noop = () => {}
@@ -120,6 +120,8 @@ const handleCommand = async (cmd: string, arg: string, sender: GuildMember, repl
             return helpHandler(PREFIX, reply)
         case 'clear':
             return clearHandler(session, reply)
+        case 'status':
+            return statusHandler(reply)
         case 'wypierdalaj': // secret command
             const url = 'https://www.youtube.com/watch?v=8QQk_CoHbyQ'
             if (session) {

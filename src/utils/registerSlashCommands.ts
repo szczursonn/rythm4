@@ -51,6 +51,9 @@ const commands = [{
 }, {
     name: 'clear',
     description: 'Clear the queue'
+}, {
+    name: 'status',
+    description: 'Bot status'
 }]
 
 export const registerCommands = async (clientId: Snowflake, token: string): Promise<void> => {
