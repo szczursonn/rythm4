@@ -137,3 +137,13 @@ const handleCommand = async (cmd: string, arg: string, sender: GuildMember, repl
             return reply(':x: **Invalid command**')
     }
 }
+
+const gracefulExit = () => {
+    console.log('SHUTTING DOWN')
+    Array.from(Session.sessions.values()).forEach(session=>session.destroy())
+    client.destroy()
+    // process.exit() is delayed to allow for client to destroy properly
+    setTimeout(process.exit, 1000)
+}
+process.on('SIGTERM', gracefulExit)
+process.on('SIGINT', gracefulExit)
