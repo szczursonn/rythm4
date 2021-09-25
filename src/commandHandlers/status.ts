@@ -1,8 +1,8 @@
-import { MessageEmbed, MessageOptions } from "discord.js"
+import { GuildMember, MessageEmbed, MessageOptions } from "discord.js"
 import Session from "../Session"
 import { formatSongDuration } from "../utils"
 
-export const statusHandler = async (reply: (msg: MessageOptions | string)=>any) => {
+export const statusHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
 
     const sessionAmount = Session.sessions.size
 

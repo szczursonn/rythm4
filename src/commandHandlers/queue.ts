@@ -1,13 +1,16 @@
 import { AudioPlayerStatus } from "@discordjs/voice"
-import { MessageEmbed, MessageOptions } from "discord.js"
+import { GuildMember, MessageEmbed, MessageOptions } from "discord.js"
 import Session from "../Session"
 import { formatSongDuration } from "../utils"
 
-export const queueHandler = async (session: Session | undefined, guildName: string , reply: (msg: MessageOptions | string)=>any) => {
+export const queueHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
     if (!session) {
         await reply(':x: **I am not active on this server**')
         return
     }
+    
+    const guildName = sender.guild.name
+
     const embed = new MessageEmbed()
     .setTitle(`Queue for ${guildName}`)
     .setColor('#0189df')

@@ -1,25 +1,24 @@
-import { MessageEmbed, MessageOptions } from "discord.js"
+import { GuildMember, MessageEmbed, MessageOptions } from "discord.js"
+import Session from "../Session"
+import { PREFIX } from "../config"
+import { commands } from "../commands"
 
-export const helpHandler = async (PREFIX: string, reply: (msg: MessageOptions | string)=>any) => {
+const niceCase = (str: string): string => str[0].toUpperCase() + str.toLowerCase().substr(1)
+
+export const helpHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
+
     const embed = new MessageEmbed()
-            .setTitle(`List of commands for Rythm4`)
-            .setColor('#0189df')
-            .setURL('https://github.com/szczursonn/Rythm4')
-                .setDescription(`Prefix: **${PREFIX}**`)
-                .addFields(
-                    { name: ':play_pause: Play', value: `**${PREFIX}play** or **${PREFIX}p**`, inline: true },
-                    { name: ':track_next: Skip', value: `**${PREFIX}skip** or **${PREFIX}s**`, inline: true },
-                    { name: ':page_facing_up: Queue', value: `**${PREFIX}queue** or **${PREFIX}q**`, inline: true },
-                    { name: ':loudspeaker: Volume', value: `**${PREFIX}volume** or **${PREFIX}vol**`, inline: true },
-                    { name: ':pause_button: Pause', value: `**${PREFIX}pause**`, inline: true },
-                    { name: ':play_pause: Unpause', value: `**${PREFIX}unpause** or **${PREFIX}resume**`, inline: true },
-                    { name: ':stop_sign: Disconnect', value: `**${PREFIX}disconnect** or **${PREFIX}dc** or **${PREFIX}fuckoff**`, inline: true },
-                    { name: ':arrows_counterclockwise: Loop', value: `**${PREFIX}loop**`, inline: true },
-                    { name: ':cyclone: Shuffle', value: `**${PREFIX}shuffle**`, inline: true},
-                    { name: ':broom: Clear', value: `**${PREFIX}clear**`, inline: true},
-                    { name: ':information_source: Status', value: `**${PREFIX}status**`, inline: true},
-                    { name: ':question: Help', value: `**${PREFIX}help**`, inline: true },
-                )
+        .setTitle(`List of commands for Rythm4`)
+        .setColor('#0189df')
+        .setURL('https://github.com/szczursonn/Rythm4')
+        .setDescription(`Prefix: **${PREFIX}**`)
+        .setFields(commands.filter(cmd=>!cmd.secret).map((cmd)=>{
+            return {
+                name: `${cmd.emoji} **${niceCase(cmd.aliases[0])}**`,
+                value: `**${cmd.aliases.map(alias=>PREFIX+alias).join('** or **')}**`,
+                inline: true
+            }
+        }))
 
     await reply({embeds: [embed]})
     return

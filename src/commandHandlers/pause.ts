@@ -1,8 +1,8 @@
-import { MessageOptions } from "discord.js"
+import { GuildMember, MessageOptions } from "discord.js"
 import { AudioPlayerStatus } from "@discordjs/voice"
 import Session from "../Session"
 
-export const pauseHandler = async (session: Session | undefined, reply: (msg: MessageOptions | string)=>any) => {
+export const pauseHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
     if (!session) {
         await reply(':x: **I am not active on this server**')
         return

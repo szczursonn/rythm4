@@ -1,7 +1,7 @@
-import { MessageOptions } from "discord.js"
+import { GuildMember, MessageOptions } from "discord.js"
 import Session from "../Session"
 
-export const loopHandler = async (session: Session | undefined, reply: (msg: MessageOptions | string)=>any) => {
+export const loopHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
     if (!session) {
         await reply(':x: **I am not active on this server**')
         return

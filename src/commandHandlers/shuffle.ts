@@ -1,4 +1,4 @@
-import { MessageOptions } from "discord.js"
+import { GuildMember, MessageOptions } from "discord.js"
 import Session from "../Session"
 
 /* https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array /*
@@ -12,7 +12,7 @@ const shuffleArray = (array: any[]) => {
     }
 }
 
-export const shuffleHandler = async (session: Session | undefined, reply: (msg: MessageOptions | string)=>any) => {
+export const shuffleHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
     if (!session) {
         await reply(':x: **I am not active on this server**')
         return
