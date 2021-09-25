@@ -17,6 +17,7 @@ export const helpHandler = async (PREFIX: string, reply: (msg: MessageOptions | 
                     { name: ':arrows_counterclockwise: Loop', value: `**${PREFIX}loop**`, inline: true },
                     { name: ':cyclone: Shuffle', value: `**${PREFIX}shuffle**`, inline: true},
                     { name: ':broom: Clear', value: `**${PREFIX}clear**`, inline: true},
+                    { name: ':information_source: Status', value: `**${PREFIX}status**`, inline: true},
                     { name: ':question: Help', value: `**${PREFIX}help**`, inline: true },
                 )
 
