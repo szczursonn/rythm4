@@ -1,8 +1,7 @@
 import { GuildMember, MessageOptions } from "discord.js"
 import { clearHandler, loopHandler, playHandler, skipHandler } from "."
+import { noop } from "../utils"
 import Session from "../Session"
-
-const noop = ()=>{}
 
 export const wypierdalajHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
     const url = 'https://www.youtube.com/watch?v=8QQk_CoHbyQ'
