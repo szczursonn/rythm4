@@ -65,6 +65,4 @@ export const registerCommands = async (clientId: Snowflake, token: string): Prom
     await rest.put(Routes.applicationGuildCommands(clientId, DEV_GUILD_ID), {body: commands})
     */
     await rest.put(Routes.applicationCommands(clientId), {body: commands})
-    
-    console.log('Reloaded slash commands')
 }

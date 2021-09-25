@@ -26,7 +26,10 @@ client.once('ready', async () => {
     try {
         const clientId = client.user!.id
         await registerCommands(clientId, TOKEN)
-    } catch (e) {}
+        console.log('Registered slash commands')
+    } catch (e) {
+        console.log(`Failed to register slash commands: ${e}`)
+    }
 
     try {
         client.user!.setPresence({
@@ -35,7 +38,9 @@ client.once('ready', async () => {
                 type: 'COMPETING'
             }]
         })
-    } catch (e) {}
+    } catch (e) {
+        console.log(`Failed to set presence: ${e}`)
+    }
     
 })
 
