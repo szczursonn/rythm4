@@ -2,8 +2,7 @@ import { GuildMember, MessageEmbed, MessageOptions } from "discord.js"
 import Session from "../Session"
 import { PREFIX } from "../config"
 import { commands } from "../commands"
-
-const niceCase = (str: string): string => str[0].toUpperCase() + str.toLowerCase().substr(1)
+import { niceCase } from "../utils"
 
 export const helpHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
 
