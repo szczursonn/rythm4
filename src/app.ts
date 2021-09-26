@@ -99,6 +99,7 @@ const handleCommand = async (cmdName: string, arg: string, sender: GuildMember, 
     try {
         await cmd.handler(session, sender, arg, reply)
     } catch (e) {
+        console.log(`cmd.handler() ERROR: ${e}`)
         await reply(`🚩 **Failed to handle the command:** \`\`\`${e}\`\`\``)
     }
     return
