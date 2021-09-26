@@ -1,10 +1,7 @@
 import { Snowflake } from "discord.js";
 import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, entersState, VoiceConnection, VoiceConnectionDisconnectReason, VoiceConnectionStatus } from "@discordjs/voice";
-import { promisify } from 'util'
-
 import Song from "./Song";
-
-const wait = promisify(setTimeout)
+import { wait } from "./utils";
 
 class Session {
     public readonly voiceConnection: VoiceConnection
