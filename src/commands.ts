@@ -2,7 +2,7 @@ import { GuildMember, MessageOptions } from "discord.js";
 import { clearHandler, disconnectHandler, helpHandler, loopHandler, pauseHandler, playHandler, queueHandler, shuffleHandler, skipHandler, statusHandler, unpauseHandler, volumeHandler, wypierdalajHandler } from "./commandHandlers";
 import Session from "./Session";
 
-interface Command {
+export interface Command {
     aliases: string[],    // First one in array gets registered as a slash command and is used as command name in /help
     description: string,
     emoji: string,
