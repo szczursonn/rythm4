@@ -68,7 +68,7 @@ client.on('interactionCreate', async (interaction) => {
 })
 
 client.on('messageCreate', async (msg) => {
-    if (!msg.guild || !msg.content || !msg.channel || !msg.guild || !msg.content.startsWith(PREFIX)) return
+    if (!msg.guild || !msg.content || !msg.channel || !msg.guild || !msg.content.startsWith(PREFIX) || msg.author.bot) return
 
     const channel = msg.channel
     const member = msg.member
