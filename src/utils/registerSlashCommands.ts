@@ -1,7 +1,7 @@
 import { Snowflake } from "discord.js"
 import { REST } from '@discordjs/rest'
 import { Routes } from "discord-api-types/v9"
-import { commands } from "../commands"
+import { Command, commands } from "../commands"
 
 interface SlashCommand {
     name: string,
@@ -14,13 +14,15 @@ interface SlashCommand {
     }[] | undefined
 }
 
-const slashCommands = commands.filter((cmd)=>!cmd.secret).map((cmd): SlashCommand => {
+export const slashify = (cmd: Command): SlashCommand => {
     return {
         name: cmd.aliases[0],
         description: cmd.description,
         options: cmd.options
     }
-})
+}
+
+const slashCommands = commands.filter((cmd)=>!cmd.secret).map(slashify)
 
 export const registerCommands = async (clientId: Snowflake, token: string): Promise<void> => {
     const rest = new REST({
