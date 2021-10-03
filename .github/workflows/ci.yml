@@ -15,4 +15,4 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           host: ${{ secrets.SERVER_IP }}
           key: ${{ secrets.SERVER_KEY }}
-          script: sh ${{ secrets.SERVER_DEPLOY_SCRIPT_PATH }}
+          script: source ${{ secrets.SERVER_DEPLOY_SCRIPT_PATH }}
