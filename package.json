@@ -29,8 +29,7 @@
     "usetube": "^2.1.3",
     "utf-8-validate": "^5.0.5",
     "ytdl-core-discord": "^1.3.1",
-    "ytfps": "^1.0.5",
-    "zlib-sync": "^0.1.7"
+    "ytfps": "^1.0.5"
   },
   "devDependencies": {
     "ts-node": "^10.2.1",
