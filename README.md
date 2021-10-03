@@ -6,8 +6,8 @@
 
 ## Usage:
 ```
-# Clone this repository
-git clone https://github.com/szczursonn/Rythm4
+# Clone production branch from this repository
+git clone https://github.com/szczursonn/Rythm4 -b prod
 cd rythm4
 
 # Install dependencies
