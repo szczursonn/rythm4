@@ -14,6 +14,7 @@ class Session {
     public volumeTransformer: any
     public static sessions: Map<Snowflake,Session> = new Map()
     private guildId: string;
+    private disconnectTimeoutId: number | undefined
 
     constructor(voiceConnection: VoiceConnection, guildId: Snowflake) {
         Session.sessions.set(guildId, this)
@@ -77,6 +78,7 @@ class Session {
     destroy() {
         this.destroy = noop   // Can only be called once
         this.queue = []
+        clearTimeout(this.disconnectTimeoutId)
         if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) this.voiceConnection.destroy()
         this.audioPlayer.stop(true)
         Session.sessions.delete(this.guildId)
@@ -87,11 +89,17 @@ class Session {
         let nextSong
         this.volumeTransformer = null
 
+        clearTimeout(this.disconnectTimeoutId)
+
         if (this.currentlyPlaying && this.looping) {
             nextSong = this.currentlyPlaying
         } else {
             this.currentlyPlaying = null
             if (this.queue.length === 0) {
+                const TIMEOUT_DURATION = 15*60*1000 // 15m
+                this.disconnectTimeoutId = Number(setTimeout(()=>{
+                    this.destroy()
+                }, TIMEOUT_DURATION))
                 return
             }
             nextSong = this.queue.shift()!
