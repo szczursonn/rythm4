@@ -1,6 +1,7 @@
 import { AudioResource, createAudioResource } from "@discordjs/voice"
 import { Snowflake } from "discord.js"
 import ytdl, { getInfo } from "ytdl-core-discord"
+import { finished } from 'stream'
 
 interface SongInfo {
     title: string,
@@ -29,9 +30,11 @@ class Song {
         const stream = await ytdl(this.url, {
             highWaterMark: 1<<25
         })
-        // After catching stream error, the song gets skipped
-        stream.on('error', (err) => {
-            console.log(`YTDL stream error: ${err}`)
+        // After catching stream error, the song gets skipped automatically
+        finished(stream, (err) => {
+            if (err) {
+                console.log(`YTDL stream error: ${err}`)
+            }
         })
         return createAudioResource(stream, {
             inlineVolume: true
