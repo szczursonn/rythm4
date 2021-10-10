@@ -64,6 +64,10 @@ class Session {
             }
         })
 
+        this.audioPlayer.on('error', (err) => {
+            console.log(`audioPlayer error: ${err}`)
+        })
+
         this.voiceConnection.subscribe(this.audioPlayer)
 
 
