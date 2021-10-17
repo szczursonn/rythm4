@@ -28,7 +28,9 @@ class Song {
 
     public async createAudioResource(): Promise<AudioResource> {
         const stream = await ytdl(this.url, {
-            highWaterMark: 1<<25
+            highWaterMark: 1<<25,
+            filter: 'audio',
+            quality: 'highestaudio'
         })
         // After catching stream error, the song gets skipped automatically
         finished(stream, (err) => {
