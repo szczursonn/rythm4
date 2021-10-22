@@ -38,6 +38,7 @@ export const playHandler = async (session: Session | undefined, sender: GuildMem
             await reply(`:thumbsup: **Joined voice channel \`${channel.name}\`!**`)
         } catch (e) {
             await reply(`:x: **Failed to join voice channel: \`\`\`${e}\`\`\`**`)
+            console.log(`Failed to join vc: ${e}`)
             return
         }
 
