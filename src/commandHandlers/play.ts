@@ -1,5 +1,5 @@
 import { GuildMember, MessageOptions, Permissions, StageChannel, VoiceChannel } from "discord.js";
-import { entersState, joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
+import { DiscordGatewayAdapterCreator, entersState, joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
 import ytfps from 'ytfps';
 const usetube = require('usetube')
 
@@ -30,7 +30,7 @@ export const playHandler = async (session: Session | undefined, sender: GuildMem
         const voiceConnection = joinVoiceChannel({
             channelId: channel.id,
             guildId,
-            adapterCreator: channel.guild.voiceAdapterCreator
+            adapterCreator: channel.guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator
         })
 
         try {
