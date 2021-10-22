@@ -25,7 +25,6 @@
     "ffmpeg": "^0.0.4",
     "ffmpeg-static": "^4.4.0",
     "libsodium-wrappers": "^0.7.9",
-    "opusscript": "^0.0.8",
     "usetube": "^2.1.3",
     "utf-8-validate": "^5.0.5",
     "ytdl-core-discord": "^1.3.1",
