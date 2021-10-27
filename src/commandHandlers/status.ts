@@ -1,6 +1,7 @@
 import { GuildMember, MessageEmbed, MessageOptions, version } from "discord.js"
 import Session from "../Session"
 import { formatSongDuration } from "../utils"
+import { IS_DEVELOPMENT } from "../config"
 
 export const statusHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
 
@@ -11,7 +12,7 @@ export const statusHandler = async (session: Session | undefined, sender: GuildM
     const embed = new MessageEmbed()
             .setTitle(`Status`)
             .setColor('#eb0c31')
-                .setDescription(`Active on \`${sessionAmount}\` servers`)
+                .setDescription(`Active on \`${sessionAmount}\` servers\nEnviroment: \`${IS_DEVELOPMENT ? 'development' : 'production'}\``)
                 .addFields(
                     { name: 'Used memory', value: `\`${bytesToMb(process.memoryUsage.rss())} MB\``, inline: false },
                     { name: 'Node.js version', value: `\`${process.version}\``, inline: false },
