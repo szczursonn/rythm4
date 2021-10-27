@@ -15,7 +15,7 @@ export const statusHandler = async (session: Session | undefined, sender: GuildM
                 .addFields(
                     { name: 'Used memory', value: `\`${bytesToMb(process.memoryUsage.rss())} MB\``, inline: false },
                     { name: 'Node.js version', value: `\`${process.version}\``, inline: false },
-                    { name: 'Uptime since last restart', value: `\`${formatSongDuration(Math.floor(process.uptime()))}\``, inline: false },
+                    { name: 'Uptime', value: `\`${formatSongDuration(Math.floor(process.uptime()))}\``, inline: false },
                 )
 
     await reply({embeds: [embed]})
