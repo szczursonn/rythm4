@@ -1,4 +1,4 @@
-import { GuildMember, MessageEmbed, MessageOptions } from "discord.js"
+import { GuildMember, MessageEmbed, MessageOptions, version } from "discord.js"
 import Session from "../Session"
 import { formatSongDuration } from "../utils"
 
@@ -15,6 +15,7 @@ export const statusHandler = async (session: Session | undefined, sender: GuildM
                 .addFields(
                     { name: 'Used memory', value: `\`${bytesToMb(process.memoryUsage.rss())} MB\``, inline: false },
                     { name: 'Node.js version', value: `\`${process.version}\``, inline: false },
+                    { name: 'Discord.js version', value: `\`${version}\``, inline: false },
                     { name: 'Uptime', value: `\`${formatSongDuration(Math.floor(process.uptime()))}\``, inline: false },
                 )
 
