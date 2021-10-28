@@ -1,7 +1,7 @@
 import { GuildMember, MessageEmbed, MessageOptions, version } from "discord.js"
 import Session from "../Session"
 import { formatSongDuration } from "../utils"
-import { IS_DEVELOPMENT } from "../config"
+import { commitId, IS_DEVELOPMENT } from "../config"
 
 export const statusHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
 
@@ -19,6 +19,7 @@ export const statusHandler = async (session: Session | undefined, sender: GuildM
                     { name: 'Discord.js version', value: `\`${version}\``, inline: false },
                     { name: 'Uptime', value: `\`${formatSongDuration(Math.floor(process.uptime()))}\``, inline: false },
                 )
+                .setFooter(commitId ? `Commit ID: ${commitId}` : 'Commit ID not found')
 
     await reply({embeds: [embed]})
     return
