@@ -6,6 +6,7 @@ import usetube from 'usetube';
 import Session from "../Session";
 import Song from "../Song";
 import { CommandHandler } from "../commands";
+import { log, LoggingLabel } from "../utils";
 
 export const playHandler: CommandHandler = async ({session, sender, args, replyCb}) => {
 
@@ -48,7 +49,7 @@ export const playHandler: CommandHandler = async ({session, sender, args, replyC
         session = new Session(voiceConnection, guildId)
     }
     
-    const isPossiblyPlaylist = arg.includes('list')
+    const isPossiblyPlaylist = arg.includes('?list=') // only playlist-specific url, not video url with playlist
 
     if (isPossiblyPlaylist) {
         try {
@@ -61,7 +62,7 @@ export const playHandler: CommandHandler = async ({session, sender, args, replyC
             .filter((result)=>result.status === 'fulfilled')
             .map((result: any)=>result.value)
             
-            for (let song of songs) {
+            for (const song of songs) {
                 session.enqueue(song)
             }
 
@@ -69,8 +70,10 @@ export const playHandler: CommandHandler = async ({session, sender, args, replyC
             return
         } catch (e) {
             if (String(e).includes('private')) {
-                await replyCb(':octagonal_sign: **This playlist is private or broken**')
-                if (!arg.includes('watch?v=')) return
+                await replyCb(':octagonal_sign: **This playlist is private**')
+                return
+            } else {
+                log(`Playlist fetch failed without it being private: ${e}`, LoggingLabel.ERROR)
             }
         }
     }
