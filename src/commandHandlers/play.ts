@@ -1,20 +1,23 @@
-import { GuildMember, MessageOptions, Permissions, StageChannel, VoiceChannel } from "discord.js";
+import { Permissions, StageChannel, VoiceChannel } from "discord.js";
 import { DiscordGatewayAdapterCreator, entersState, joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
 import ytfps from 'ytfps';
 const usetube = require('usetube')
 
 import Session from "../Session";
 import Song from "../Song";
+import { CommandHandler, CommandHandlerParams } from "../commands";
 
-export const playHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
+export const playHandler: CommandHandler = async ({session, sender, args, replyCb}: CommandHandlerParams) => {
+
+    const arg = args[0]
 
     const channel = sender.voice.channel
     if (channel instanceof StageChannel) {
-        await reply(':no_entry_sign: **Support for stage channels not implemented yet!**')
+        await replyCb(':no_entry_sign: **Support for stage channels not implemented yet!**')
         return
     }
     if (!(channel instanceof VoiceChannel)) {
-        await reply(':x: **You have to be in a voice channel to use this command!**')
+        await replyCb(':x: **You have to be in a voice channel to use this command!**')
         return
     }
 
@@ -23,7 +26,7 @@ export const playHandler = async (session: Session | undefined, sender: GuildMem
     if (!session) {
         const myPermissions = channel.permissionsFor(channel.guild.me!)
         if (!myPermissions.has(Permissions.FLAGS.CONNECT)) {
-            await reply(`:x: **I don't have permission to join your voice channel!**`)
+            await replyCb(`:x: **I don't have permission to join your voice channel!**`)
             return
         }
 
@@ -35,9 +38,9 @@ export const playHandler = async (session: Session | undefined, sender: GuildMem
 
         try {
             await entersState(voiceConnection, VoiceConnectionStatus.Ready, 10*1000)
-            await reply(`:thumbsup: **Joined voice channel \`${channel.name}\`!**`)
+            await replyCb(`:thumbsup: **Joined voice channel \`${channel.name}\`!**`)
         } catch (e) {
-            await reply(`:x: **Failed to join voice channel: \`\`\`${e}\`\`\`**`)
+            await replyCb(`:x: **Failed to join voice channel: \`\`\`${e}\`\`\`**`)
             console.log(`Failed to join vc: ${e}`)
             return
         }
@@ -62,11 +65,11 @@ export const playHandler = async (session: Session | undefined, sender: GuildMem
                 session.enqueue(song)
             }
 
-            await reply(`:notes: **Added ${songs.length} songs to the queue!**${songs.length === urls.length ? '' : `, failed to add ${urls.length-songs.length} songs`}`)
+            await replyCb(`:notes: **Added ${songs.length} songs to the queue!**${songs.length === urls.length ? '' : `, failed to add ${urls.length-songs.length} songs`}`)
             return
         } catch (e) {
             if (String(e).includes('private')) {
-                await reply(':octagonal_sign: **This playlist is private or broken**')
+                await replyCb(':octagonal_sign: **This playlist is private or broken**')
                 if (!arg.includes('watch?v=')) return
             }
         }
@@ -85,10 +88,10 @@ export const playHandler = async (session: Session | undefined, sender: GuildMem
         }   
     }
     if (!song) {
-        await reply(':octagonal_sign: Failed to resolve searchphrase/url, or the video is age-restricted')
+        await replyCb(':octagonal_sign: Failed to resolve searchphrase/url, or the video is age-restricted')
         return
     }
     session.enqueue(song)
-    await reply(`:notes: **Added \`${song.title}\` to the queue!**`)
+    await replyCb(`:notes: **Added \`${song.title}\` to the queue!**`)
     return
 }

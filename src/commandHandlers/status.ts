@@ -1,9 +1,10 @@
-import { GuildMember, MessageEmbed, MessageOptions, version } from "discord.js"
+import { MessageEmbed, version } from "discord.js"
 import Session from "../Session"
 import { formatSongDuration } from "../utils"
 import { commitId, IS_DEVELOPMENT } from "../config"
+import { CommandHandler, CommandHandlerParams } from "../commands"
 
-export const statusHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
+export const statusHandler: CommandHandler = async ({replyCb}: CommandHandlerParams) => {
 
     const sessionAmount = Session.sessions.size
 
@@ -21,6 +22,6 @@ export const statusHandler = async (session: Session | undefined, sender: GuildM
                 )
                 .setFooter(commitId ? `Commit ID: ${commitId}` : 'Commit ID not found')
 
-    await reply({embeds: [embed]})
+    await replyCb({embeds: [embed]})
     return
 }

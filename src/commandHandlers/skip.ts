@@ -1,17 +1,16 @@
-import { GuildMember, MessageOptions } from "discord.js"
-import Session from "../Session"
+import { CommandHandler, CommandHandlerParams } from "../commands"
 
-export const skipHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
+export const skipHandler: CommandHandler = async ({session, replyCb}: CommandHandlerParams) => {
     if (!session) {
-        await reply(':x: **I am not active on this server**')
+        await replyCb(':x: **I am not active on this server**')
         return
     }
     if (!session.currentlyPlaying) {
-        await reply(':x: **There is nothing to skip!**')
+        await replyCb(':x: **There is nothing to skip!**')
         return
     }
     session.looping = false
     session.audioPlayer.stop(true)
-    await reply(':fast_forward: ***Song skipped!***')
+    await replyCb(':fast_forward: ***Song skipped!***')
     return
 }

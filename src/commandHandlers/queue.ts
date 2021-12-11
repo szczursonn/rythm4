@@ -1,11 +1,11 @@
 import { AudioPlayerStatus } from "@discordjs/voice"
-import { GuildMember, MessageEmbed, MessageOptions } from "discord.js"
-import Session from "../Session"
+import { MessageEmbed } from "discord.js"
+import { CommandHandler, CommandHandlerParams } from "../commands"
 import { formatSongDuration } from "../utils"
 
-export const queueHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
+export const queueHandler: CommandHandler = async ({session, sender, replyCb}: CommandHandlerParams) => {
     if (!session) {
-        await reply(':x: **I am not active on this server**')
+        await replyCb(':x: **I am not active on this server**')
         return
     }
     
@@ -48,6 +48,6 @@ export const queueHandler = async (session: Session | undefined, sender: GuildMe
         embed.setDescription(`Queue length: **${formatSongDuration(queueDuration)}**\nLooping: ${session.looping ? ':green_circle:' : ':red_circle:'}\nVolume: **${session.volume}**`)
     }
 
-    await reply({embeds: [embed]})
+    await replyCb({embeds: [embed]})
     return
 }

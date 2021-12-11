@@ -1,12 +1,11 @@
-import { GuildMember, MessageOptions } from "discord.js"
-import Session from "../Session"
+import { CommandHandler, CommandHandlerParams } from "../commands"
 
-export const loopHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
+export const loopHandler: CommandHandler = async ({session, replyCb}: CommandHandlerParams) => {
     if (!session) {
-        await reply(':x: **I am not active on this server**')
+        await replyCb(':x: **I am not active on this server**')
         return
     }
     session.looping = !session.looping
-    await reply(`**${session.looping ? ':green_circle: Looping on' : ':red_circle: Looping off'}!**`)
+    await replyCb(`**${session.looping ? ':green_circle: Looping on' : ':red_circle: Looping off'}!**`)
     return
 }

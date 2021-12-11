@@ -77,21 +77,21 @@ client.on('messageCreate', async (msg) => {
     return 
 })
 
-const handleCommand = async (cmdName: string, arg: string, sender: GuildMember, reply: (msg: MessageOptions | string)=>any) => {
+const handleCommand = async (cmdName: string, arg: string, sender: GuildMember, replyCb: (msg: MessageOptions | string)=>any) => {
 
     const session = Session.sessions.get(sender.guild.id)
 
     const cmd = resolveCommand(cmdName)
     if (!cmd) {
-        await reply(':x: **Invalid command!**')
+        await replyCb(':x: **Invalid command!**')
         return
     }
 
     try {
-        await cmd.handler(session, sender, arg, reply)
+        await cmd.handler({session, sender, args: [arg], replyCb})
     } catch (e) {
         log(`cmd.handler() ERROR: ${e}`, LoggingLabel.ERROR)
-        await reply(`🚩 **Failed to handle the command:** \`\`\`${e}\`\`\``)
+        await replyCb(`🚩 **Failed to handle the command:** \`\`\`${e}\`\`\``)
     }
     return
 }

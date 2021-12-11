@@ -1,10 +1,9 @@
-import { GuildMember, MessageEmbed, MessageOptions } from "discord.js"
-import Session from "../Session"
+import { MessageEmbed } from "discord.js"
 import { PREFIX } from "../config"
-import { commands } from "../commands"
+import { CommandHandler, CommandHandlerParams, commands } from "../commands"
 import { niceCase } from "../utils"
 
-export const helpHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
+export const helpHandler: CommandHandler = async ({replyCb}: CommandHandlerParams) => {
 
     const embed = new MessageEmbed()
         .setTitle(`List of commands for Rythm4`)
@@ -19,6 +18,6 @@ export const helpHandler = async (session: Session | undefined, sender: GuildMem
             }
         }))
 
-    await reply({embeds: [embed]})
+    await replyCb({embeds: [embed]})
     return
 }

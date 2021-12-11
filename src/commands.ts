@@ -1,8 +1,8 @@
 import { GuildMember, MessageOptions } from "discord.js";
-import { clearHandler, disconnectHandler, helpHandler, loopHandler, pauseHandler, playHandler, queueHandler, shuffleHandler, skipHandler, statusHandler, unpauseHandler, volumeHandler, wypierdalajHandler } from "./commandHandlers";
+import { clearHandler, disconnectHandler, helpHandler, loopHandler, pauseHandler, playHandler, queueHandler, shuffleHandler, skipHandler, statusHandler, unpauseHandler, volumeHandler } from "./commandHandlers";
 import Session from "./Session";
 
-export interface Command {
+export type Command = {
     aliases: string[],    // First one in array gets registered as a slash command and is used as command name in /help
     description: string,
     emoji: string,
@@ -13,8 +13,19 @@ export interface Command {
         type: number,   // https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-type
         required: boolean
     }[],
-    handler: (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>void)=>Promise<void>,
+    handler: CommandHandler
 }
+
+export type CommandHandler = (commandHandlerParams: CommandHandlerParams)=>Promise<void>
+
+export type CommandHandlerParams = {
+    session?: Session,
+    sender: GuildMember,
+    args: string[],
+    replyCb: CommandReplyCb
+}
+
+export type CommandReplyCb = (msg: MessageOptions | string)=>Promise<void>
 
 export const resolveCommand = (alias: string): Command | undefined => {
     return commands.filter(cmd=>cmd.aliases.includes(alias))[0]
@@ -104,10 +115,4 @@ export const commands: Command[] = [{
     emoji: 'ℹ️',
     secret: false,
     handler: statusHandler
-}, {
-    aliases: ['wypierdalaj'],
-    description: '',
-    emoji: '🔥',
-    secret: true,
-    handler: wypierdalajHandler
 }]

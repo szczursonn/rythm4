@@ -1,21 +1,20 @@
 import { AudioPlayerStatus } from "@discordjs/voice"
-import { GuildMember, MessageOptions } from "discord.js"
-import Session from "../Session"
+import { CommandHandler, CommandHandlerParams } from "../commands"
 
-export const unpauseHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
+export const unpauseHandler: CommandHandler = async ({session, replyCb}: CommandHandlerParams) => {
     if (!session) {
-        await reply(':x: **I am not active on this server**')
+        await replyCb(':x: **I am not active on this server**')
         return
     }
     if (!session.currentlyPlaying) {
-        await reply(':x: **Nothing is playing!**')
+        await replyCb(':x: **Nothing is playing!**')
         return
     }
     if (session.audioPlayer.state.status !== AudioPlayerStatus.Paused) {
-        await reply(':x: **I am not paused!**')
+        await replyCb(':x: **I am not paused!**')
         return
     }
     session.audioPlayer.unpause()
-    await reply(':play_pause: ***Player unpaused!***')
+    await replyCb(':play_pause: ***Player unpaused!***')
     return
 }

@@ -1,21 +1,20 @@
-import { GuildMember, MessageOptions } from "discord.js"
-import Session from "../Session"
+import { CommandHandler, CommandHandlerParams } from "../commands"
 import { shuffleArray } from "../utils"
 
-export const shuffleHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
+export const shuffleHandler: CommandHandler = async ({session, replyCb}: CommandHandlerParams) => {
     if (!session) {
-        await reply(':x: **I am not active on this server**')
+        await replyCb(':x: **I am not active on this server**')
         return
     }
 
     const queue = session.queue
 
     if (queue.length < 2) {
-        await reply(':interrobang: **There is nothing to shuffle!**')
+        await replyCb(':interrobang: **There is nothing to shuffle!**')
         return
     }
 
     shuffleArray(queue)
-    await reply(':cyclone: **Shuffled the queue!**')
+    await replyCb(':cyclone: **Shuffled the queue!**')
     return
 }

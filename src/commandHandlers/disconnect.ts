@@ -1,12 +1,11 @@
-import { GuildMember, MessageOptions } from "discord.js"
-import Session from "../Session"
+import { CommandHandler, CommandHandlerParams } from "../commands"
 
-export const disconnectHandler = async (session: Session | undefined, sender: GuildMember, arg: string, reply: (msg: MessageOptions | string)=>any) => {
+export const disconnectHandler: CommandHandler = async ({session, replyCb}: CommandHandlerParams) => {
     if (!session) {
-        await reply(':x: **I am not active on this server**')
+        await replyCb(':x: **I am not active on this server**')
         return
     }
-    await reply('***:beginner: :beginner: :beginner:Thanks for using pompa bocik  :100: :100: :100:***')
+    await replyCb('***:beginner: :beginner: :beginner:Thanks for using pompa bocik  :100: :100: :100:***')
     session.destroy()
     return
 }
