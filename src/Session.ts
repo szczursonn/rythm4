@@ -1,7 +1,7 @@
 import { Snowflake } from "discord.js";
 import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, entersState, VoiceConnection, VoiceConnectionDisconnectReason, VoiceConnectionStatus } from "@discordjs/voice";
 import Song from "./Song";
-import { noop, shuffleArray, wait } from "./utils";
+import { log, LoggingLabel, noop, shuffleArray, wait } from "./utils";
 
 class Session {
     private voiceConnection: VoiceConnection
@@ -10,6 +10,7 @@ class Session {
     private audioPlayer: AudioPlayer
     private readyLock: boolean
     private looping: boolean
+    private processingQueue: boolean
     private guildId: Snowflake;
     private disconnectTimeoutId: number | undefined
 
@@ -24,6 +25,7 @@ class Session {
         this.readyLock = false
         this.looping = false
         this.guildId = guildId
+        this.processingQueue = false
 
         // https://github.com/discordjs/voice/blob/main/examples/music-bot/src/music/subscription.ts#L32
         this.voiceConnection.on('stateChange', async (_, newState) => {
@@ -58,7 +60,7 @@ class Session {
         this.audioPlayer.on('stateChange', (oldState, newState) => {
             if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
                 // audio resource finished playing
-                this.advanceQueue()
+                this.processQueue()
             }
         })
 
@@ -73,7 +75,7 @@ class Session {
     }
 
     public skipSong() {
-        this.advanceQueue()
+        this.audioPlayer.stop() // will automatically play next song
     }
 
     public shuffleQueue() {
@@ -114,7 +116,8 @@ class Session {
 
     public enqueue(song: Song) {
         this.queue.push(song)
-        if (!this.currentlyPlaying) this.advanceQueue()
+        this.processQueue()
+        log(`Enqueued song ${song.title} on guild ${this.guildId}`, LoggingLabel.DEBUG)
     }
 
     public destroy() {
@@ -124,37 +127,37 @@ class Session {
         if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) this.voiceConnection.destroy()
         this.audioPlayer.stop(true)
         Session.sessions.delete(this.guildId)
-        console.log(`Session destroyed on guild ${this.guildId}`)
+        log(`Session destroyed on guild ${this.guildId}`, LoggingLabel.INFO)
     }
 
-    public async advanceQueue() {
-        let nextSong
+    private async processQueue() {
+
+        if (this.processingQueue || this.audioPlayer.state.status !== AudioPlayerStatus.Idle) {
+            return
+        }
 
         clearTimeout(this.disconnectTimeoutId)
 
-        if (this.currentlyPlaying && this.looping) {
-            nextSong = this.currentlyPlaying
-        } else {
-            this.currentlyPlaying = null
-            if (this.queue.length === 0) {
-                const TIMEOUT_DURATION = 15*60*1000 // 15m
-                this.disconnectTimeoutId = Number(setTimeout(()=>{
-                    this.destroy()
-                }, TIMEOUT_DURATION))
-                return
-            }
-            nextSong = this.queue.shift()!
+        if (this.queue.length === 0) {
+            this.disconnectTimeoutId = Number(setTimeout(()=>{
+                this.destroy()
+            }, 10*60*1000))
         }
-        
-        this.currentlyPlaying = nextSong
+
+        this.processingQueue = true
+
+        const nextSong: Song = this.looping ? this.currentlyPlaying! : this.queue.shift()!
 
         try {
-            const resource = await nextSong.createAudioResource()
-            this.audioPlayer.play(resource)
-        } catch (e) {
-            console.log(e)
-            await this.advanceQueue()
+            const audioResource = await nextSong.createAudioResource()
+            this.audioPlayer.play(audioResource)
+            this.processingQueue = false
+        } catch (err) {
+            log(`Failed to create audioResource: ${err}`, LoggingLabel.ERROR)
+            this.processQueue()
+            this.processingQueue = false
         }
+
     }
 
     public static getSession(guildId: Snowflake) {
