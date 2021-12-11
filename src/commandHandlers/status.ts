@@ -1,7 +1,7 @@
 import { MessageEmbed, version } from "discord.js"
 import Session from "../Session"
 import { formatSongDuration } from "../utils"
-import { commitId, IS_DEVELOPMENT } from "../config"
+import { commitId, NODE_ENV } from "../config"
 import { CommandHandler } from "../commands"
 
 export const statusHandler: CommandHandler = async ({replyCb}) => {
@@ -13,7 +13,7 @@ export const statusHandler: CommandHandler = async ({replyCb}) => {
     const embed = new MessageEmbed()
             .setTitle(`Status`)
             .setColor('#eb0c31')
-                .setDescription(`Active on \`${sessionAmount}\` servers\nEnviroment: \`${IS_DEVELOPMENT ? 'development' : 'production'}\``)
+                .setDescription(`Active on \`${sessionAmount}\` servers\nEnviroment: \`${NODE_ENV}\``)
                 .addFields(
                     { name: 'Used memory', value: `\`${bytesToMb(process.memoryUsage.rss())} MB\``, inline: false },
                     { name: 'Node.js version', value: `\`${process.version}\``, inline: false },
