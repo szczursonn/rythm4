@@ -6,9 +6,9 @@ import { niceCase } from "../utils"
 export const helpHandler: CommandHandler = async ({replyCb}) => {
 
     const embed = new MessageEmbed()
-        .setTitle(`List of commands for Rythm4`)
+        .setTitle(`List of commands for rythm4`)
         .setColor('#0189df')
-        .setURL('https://github.com/szczursonn/Rythm4')
+        .setURL('https://github.com/szczursonn/rythm4')
         .setDescription(`Prefix: **${PREFIX}**`)
         .setFields(commands.filter(cmd=>!cmd.secret).map((cmd)=>{
             return {
