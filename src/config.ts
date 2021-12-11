@@ -18,7 +18,7 @@ if (!process.env.DISCORD_TOKEN) {
 }
 
 if (!process.env.PREFIX) {
-    log(`Command prefix not provided, defaulting to ${DEFAULT_PREFIX}`, LoggingLabel.INFO)
+    log(`Command prefix not provided, defaulting to ${DEFAULT_PREFIX}`, LoggingLabel.WARNING)
 }
 
 try {
