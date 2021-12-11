@@ -1,7 +1,14 @@
 import { config } from "dotenv"
 import { execSync } from 'child_process'
 import { log, LoggingLabel } from "./utils"
-config()
+const dotenvConfigResult = config()
+
+if (dotenvConfigResult.error) {
+    log(`Failed to load .env file: ${dotenvConfigResult.error}`, LoggingLabel.DEBUG)
+} else {
+    const parsedKeys = Object.values(dotenvConfigResult.parsed!)
+    log(`Parsed [${parsedKeys}] from .env file`, LoggingLabel.DEBUG)
+}
 
 const DEFAULT_PREFIX = '$'
 
