@@ -1,14 +1,12 @@
 import { MessageEmbed, version } from "discord.js"
 import Session from "../Session"
-import { formatSongDuration } from "../utils"
+import { bytesToMb, formatSongDuration } from "../utils"
 import { commitId, NODE_ENV } from "../config"
 import { CommandHandler } from "../commands"
 
 export const statusHandler: CommandHandler = async ({replyCb}) => {
 
     const sessionAmount = Session.getAllSessions().length
-
-    const bytesToMb = (b: number): number => Math.floor(b/1024/1024)
 
     const embed = new MessageEmbed()
             .setTitle(`Status`)
