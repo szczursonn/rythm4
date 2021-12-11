@@ -11,7 +11,6 @@ class Session {
     public readyLock: boolean
     public looping: boolean
     public volume: number
-    public volumeTransformer: any
     public static sessions: Map<Snowflake,Session> = new Map()
     private guildId: string;
     private disconnectTimeoutId: number | undefined
@@ -91,7 +90,6 @@ class Session {
 
     async advanceQueue() {
         let nextSong
-        this.volumeTransformer = null
 
         clearTimeout(this.disconnectTimeoutId)
 
@@ -114,7 +112,6 @@ class Session {
         try {
             const resource = await nextSong.createAudioResource()
             const volumeTransformer = resource.volume
-            this.volumeTransformer = volumeTransformer
             volumeTransformer?.setVolume(this.volume)
             this.audioPlayer.play(resource)
         } catch (e) {

@@ -1,5 +1,5 @@
 import { GuildMember, MessageOptions } from "discord.js";
-import { clearHandler, disconnectHandler, helpHandler, loopHandler, pauseHandler, playHandler, queueHandler, shuffleHandler, skipHandler, statusHandler, unpauseHandler, volumeHandler } from "./commandHandlers";
+import { clearHandler, disconnectHandler, helpHandler, loopHandler, pauseHandler, playHandler, queueHandler, shuffleHandler, skipHandler, statusHandler, unpauseHandler } from "./commandHandlers";
 import Session from "./Session";
 import { log, LoggingLabel } from "./utils";
 
@@ -103,18 +103,6 @@ export const commands: Command[] = [{
     emoji: '⏯️',
     secret: false,
     handler: unpauseHandler
-}, {
-    aliases: ['volume','vol'],
-    description: 'Set the volume',
-    emoji: '📢',
-    secret: false,
-    options: [{
-        name: 'volume',
-        description: 'Volume level: 0 = 0% , 1 = 100%',
-        type: 10,
-        required: true
-    }],
-    handler: volumeHandler
 }, {
     aliases: ['help'],
     description: 'Show the list of commands',

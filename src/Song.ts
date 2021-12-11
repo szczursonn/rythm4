@@ -32,9 +32,7 @@ class Song implements SongInfo {
             quality: 'highestaudio'
         })
         
-        return createAudioResource(stream, {
-            inlineVolume: true
-        })
+        return createAudioResource(stream)
     }
 
     public static async from(url: string, addedBy: Snowflake) {
