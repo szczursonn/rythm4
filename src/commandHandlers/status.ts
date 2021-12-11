@@ -6,7 +6,7 @@ import { CommandHandler } from "../commands"
 
 export const statusHandler: CommandHandler = async ({replyCb}) => {
 
-    const sessionAmount = Session.sessions.size
+    const sessionAmount = Session.getAllSessions().length
 
     const bytesToMb = (b: number): number => Math.floor(b/1024/1024)
 
