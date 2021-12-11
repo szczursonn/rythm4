@@ -1,5 +1,4 @@
 import { CommandHandler, CommandHandlerParams } from "../commands"
-import { shuffleArray } from "../utils"
 
 export const shuffleHandler: CommandHandler = async ({session, replyCb}: CommandHandlerParams) => {
     if (!session) {
@@ -7,14 +6,13 @@ export const shuffleHandler: CommandHandler = async ({session, replyCb}: Command
         return
     }
 
-    const queue = session.queue
+    const queue = session.getQueue()
 
     if (queue.length < 2) {
         await replyCb(':interrobang: **There is nothing to shuffle!**')
         return
     }
-
-    shuffleArray(queue)
+    session.shuffleQueue()
     await replyCb(':cyclone: **Shuffled the queue!**')
     return
 }

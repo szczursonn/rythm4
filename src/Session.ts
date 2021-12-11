@@ -1,33 +1,32 @@
 import { Snowflake } from "discord.js";
 import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, entersState, VoiceConnection, VoiceConnectionDisconnectReason, VoiceConnectionStatus } from "@discordjs/voice";
 import Song from "./Song";
-import { noop, wait } from "./utils";
+import { noop, shuffleArray, wait } from "./utils";
 
 class Session {
-    public readonly voiceConnection: VoiceConnection
-    public currentlyPlaying: Song | null
-    public queue: Song[]
-    public readonly audioPlayer: AudioPlayer
-    public readyLock: boolean
-    public looping: boolean
-    public volume: number
-    public static sessions: Map<Snowflake,Session> = new Map()
-    private guildId: string;
+    private voiceConnection: VoiceConnection
+    private currentlyPlaying: Song | null
+    private queue: Song[]
+    private audioPlayer: AudioPlayer
+    private readyLock: boolean
+    private looping: boolean
+    private guildId: Snowflake;
     private disconnectTimeoutId: number | undefined
 
+    private static sessions: Map<Snowflake,Session> = new Map()
+
     constructor(voiceConnection: VoiceConnection, guildId: Snowflake) {
-        Session.sessions.set(guildId, this)
+        
         this.voiceConnection = voiceConnection
         this.audioPlayer = createAudioPlayer()
         this.queue = []
         this.currentlyPlaying = null
         this.readyLock = false
         this.looping = false
-        this.volume = 1
         this.guildId = guildId
 
         // https://github.com/discordjs/voice/blob/main/examples/music-bot/src/music/subscription.ts#L32
-        this.voiceConnection.on('stateChange', async (oldState, newState) => {
+        this.voiceConnection.on('stateChange', async (_, newState) => {
             if (newState.status === VoiceConnectionStatus.Disconnected) {
                 if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
                     // Wait 5 seconds to determine if client was kicked from VC or is switching VC
@@ -69,16 +68,56 @@ class Session {
 
         this.voiceConnection.subscribe(this.audioPlayer)
 
-
+        Session.sessions.set(guildId, this)
         console.log(`Session created on guild ${this.guildId}`)
     }
 
-    enqueue(song: Song) {
+    public skipSong() {
+        this.advanceQueue()
+    }
+
+    public shuffleQueue() {
+        shuffleArray(this.queue)
+    }
+
+    public isLooping() {
+        return this.looping
+    }
+
+    public setLooping(looping: boolean) {
+        this.looping = looping
+    }
+
+    public isPaused() {
+        return this.audioPlayer.state.status === AudioPlayerStatus.Paused
+    }
+
+    public pause() {
+        this.audioPlayer.pause(true)
+    }
+
+    public unpause() {
+        this.audioPlayer.unpause()
+    }
+
+    public getCurrentSong() {
+        return this.currentlyPlaying
+    }
+
+    public getQueue() {
+        return [...this.queue]  // shallow copy
+    }
+
+    public clearQueue() {
+        this.queue = []
+    }
+
+    public enqueue(song: Song) {
         this.queue.push(song)
         if (!this.currentlyPlaying) this.advanceQueue()
     }
 
-    destroy() {
+    public destroy() {
         this.destroy = noop   // Can only be called once
         this.queue = []
         clearTimeout(this.disconnectTimeoutId)
@@ -88,7 +127,7 @@ class Session {
         console.log(`Session destroyed on guild ${this.guildId}`)
     }
 
-    async advanceQueue() {
+    public async advanceQueue() {
         let nextSong
 
         clearTimeout(this.disconnectTimeoutId)
@@ -111,13 +150,19 @@ class Session {
 
         try {
             const resource = await nextSong.createAudioResource()
-            const volumeTransformer = resource.volume
-            volumeTransformer?.setVolume(this.volume)
             this.audioPlayer.play(resource)
         } catch (e) {
             console.log(e)
             await this.advanceQueue()
         }
+    }
+
+    public static getSession(guildId: Snowflake) {
+        return this.sessions.get(guildId)
+    }
+
+    public static getAllSessions() {
+        return Array.from(this.sessions.values())
     }
 }
 

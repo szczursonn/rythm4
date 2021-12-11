@@ -5,11 +5,11 @@ export const clearHandler: CommandHandler = async ({session, replyCb}: CommandHa
         await replyCb(':x: **I am not active on this server**')
         return
     }
-    if (session.queue.length < 1) {
+    if (session.getQueue().length < 1) {
         await replyCb(':x: **The queue is already empty!**')
         return
     }
-    session.queue = []
+    session.clearQueue()
     await replyCb(':broom: **Queue cleared!**')
     return
 }

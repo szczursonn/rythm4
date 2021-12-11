@@ -5,12 +5,12 @@ export const skipHandler: CommandHandler = async ({session, replyCb}: CommandHan
         await replyCb(':x: **I am not active on this server**')
         return
     }
-    if (!session.currentlyPlaying) {
+    if (!session.getCurrentSong()) {
         await replyCb(':x: **There is nothing to skip!**')
         return
     }
-    session.looping = false
-    session.audioPlayer.stop(true)
+    session.setLooping(false)
+    session.skipSong()
     await replyCb(':fast_forward: ***Song skipped!***')
     return
 }

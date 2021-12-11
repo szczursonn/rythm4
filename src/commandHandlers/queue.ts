@@ -15,7 +15,9 @@ export const queueHandler: CommandHandler = async ({session, sender, replyCb}: C
     .setTitle(`Queue for ${guildName}`)
     .setColor('#0189df')
     
-    if (!session.currentlyPlaying) {
+    const currentSong = session.getCurrentSong()
+
+    if (!currentSong) {
         embed.addFields({
             name: 'There is nothing playing on this server.',
             value: '\u2800',
@@ -23,13 +25,14 @@ export const queueHandler: CommandHandler = async ({session, sender, replyCb}: C
         })
     } else {
         embed.addFields({
-            name: `__Playing now__: ${session.currentlyPlaying.title}${session.audioPlayer.state.status === AudioPlayerStatus.Paused ? ' | PAUSED' : ''}`,
-            value: `Length: \`${formatSongDuration(session.currentlyPlaying.duration)}\` | Requested by <@${session.currentlyPlaying.addedBy}>`,
+            name: `__Playing now__: ${currentSong.title}${session.isPaused() ? ' | PAUSED' : ''}`,
+            value: `Length: \`${formatSongDuration(currentSong.duration)}\` | Requested by <@${currentSong.addedBy}>`,
             inline: false
         })
         let queueDuration = 0
-        for (let i = 0; i<session.queue.length; i++) {
-            const song = session.queue[i]
+        const queue = session.getQueue()
+        for (let i = 0; i<queue.length; i++) {
+            const song = queue[i]
             queueDuration += song.duration
             if (i < 5) {
                 embed.addFields({
@@ -39,13 +42,13 @@ export const queueHandler: CommandHandler = async ({session, sender, replyCb}: C
                 })
             } else if (i === 5) {
                 embed.addFields({
-                    name: `and ${session.queue.length-5} more videos queued!`,
+                    name: `and ${queue.length-5} more videos queued!`,
                     value: '\u2800',
                     inline: false
                 })
             }
         }
-        embed.setDescription(`Queue length: **${formatSongDuration(queueDuration)}**\nLooping: ${session.looping ? ':green_circle:' : ':red_circle:'}\nVolume: **${session.volume}**`)
+        embed.setDescription(`Queue length: **${formatSongDuration(queueDuration)}**\nLooping: ${session.isLooping() ? ':green_circle:' : ':red_circle:'}`)
     }
 
     await replyCb({embeds: [embed]})

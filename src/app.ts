@@ -58,6 +58,7 @@ client.on('interactionCreate', async (interaction) => {
         }
 
     await handleCommand(cmd, {
+        session: Session.getSession(interaction.guildId),
         sender: interaction.member,
         args: [arg],
         replyCb
@@ -79,6 +80,7 @@ client.on('messageCreate', async (msg) => {
     }
 
     await handleCommand(cmd, {
+        session: Session.getSession(msg.guild.id),
         args,
         sender: msg.member,
         replyCb
@@ -88,9 +90,9 @@ client.on('messageCreate', async (msg) => {
 
 const gracefulExit = () => {
     log('SHUTTING DOWN', LoggingLabel.INFO)
-    Array.from(Session.sessions.values()).forEach(session=>session.destroy())
+    Session.getAllSessions().forEach(session=>session.destroy())
     client.destroy()
-    // process.exit() is delayed to allow for client to destroy properly
+    // process.exit() is delayed to allow for client to destroy all sessions and self properly
     setTimeout(process.exit, 1000)
 }
 process.on('SIGTERM', gracefulExit)

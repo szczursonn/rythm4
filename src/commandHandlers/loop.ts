@@ -5,7 +5,12 @@ export const loopHandler: CommandHandler = async ({session, replyCb}: CommandHan
         await replyCb(':x: **I am not active on this server**')
         return
     }
-    session.looping = !session.looping
-    await replyCb(`**${session.looping ? ':green_circle: Looping on' : ':red_circle: Looping off'}!**`)
+    if (session.isLooping()) {
+        session.setLooping(false)
+    } else {
+        session.setLooping(true)
+    }
+
+    await replyCb(`**${session.isLooping() ? ':green_circle: Looping on' : ':red_circle: Looping off'}!**`)
     return
 }

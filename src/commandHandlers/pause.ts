@@ -1,4 +1,3 @@
-import { AudioPlayerStatus } from "@discordjs/voice"
 import { CommandHandler, CommandHandlerParams } from "../commands"
 
 export const pauseHandler: CommandHandler = async ({session, replyCb}: CommandHandlerParams) => {
@@ -6,15 +5,15 @@ export const pauseHandler: CommandHandler = async ({session, replyCb}: CommandHa
         await replyCb(':x: **I am not active on this server**')
         return
     }
-    if (!session.currentlyPlaying) {
+    if (!session.getCurrentSong()) {
         await replyCb(':x: **Nothing is playing!**')
         return
     }
-    if (session.audioPlayer.state.status === AudioPlayerStatus.Paused) {
+    if (session.isPaused()) {
         await replyCb(':x: **I am already paused!**')
         return
     }
-    session.audioPlayer.pause(true)
+    session.pause()
     await replyCb(':pause_button: ***Player paused!***')
     return
 }
