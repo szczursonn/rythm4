@@ -2,7 +2,7 @@ import { PREFIX, DISCORD_TOKEN } from "./config";
 import { Client, CommandInteraction, GuildMember, Intents, MessageOptions } from "discord.js";
 import Session from "./Session";
 import { registerCommands, noop, log, LoggingLabel } from "./utils";
-import { resolveCommand } from "./commands";
+import { CommandReplyCb, handleCommand, resolveCommand } from "./commands";
 
 const client = new Client({
     intents: [Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
@@ -44,57 +44,47 @@ client.on('interactionCreate', async (interaction) => {
     const cmd = interaction.commandName
     const arg = interaction.options.get('song')?.value?.toString() || interaction.options.get('volume')?.value?.toString() || ''
 
-    let replyCb
-    try {
-        await interaction.deferReply()
-        replyCb = (msg: string | MessageOptions) => {
-            return interaction.followUp(msg).catch(noop)
+    let replyCb: CommandReplyCb = async ()=>{}
+        try {
+            await interaction.deferReply()
+            replyCb = async (msg: string | MessageOptions) => {
+                await interaction.followUp(msg).catch((err)=>{
+                    log(`Failed to reply to interaction on guild ${interaction.guildId}:\n${err}`, LoggingLabel.ERROR)
+                })
+                return
+            }
+        } catch (err) {
+            log(`Failed to defer reply to interaction on guild ${interaction.guildId}:\n${err}`, LoggingLabel.ERROR)
         }
-    } catch (e) {
-        replyCb = noop
-    }
 
-    handleCommand(cmd, arg, interaction.member, replyCb)
+    await handleCommand(cmd, {
+        sender: interaction.member,
+        args: [arg],
+        replyCb
+    })
     return 
 })
 
 client.on('messageCreate', async (msg) => {
-    if (!msg.guild || !msg.content || !msg.channel || !msg.guild || !msg.content.startsWith(PREFIX) || msg.author.bot) return
+    if (!msg.guild || !msg.content || !msg.channel || !msg.guild || !msg.content.startsWith(PREFIX) || msg.author.bot || !msg.member) return
 
-    const channel = msg.channel
-    const member = msg.member
-    if (!member) return
+    const args = msg.content.substring(PREFIX.length).split(' ')
+    const cmd = args.shift()?.toLowerCase() || ''
 
-    let tmp = msg.content.substr(PREFIX.length).split(' ')
-    const cmd = tmp.shift()?.toLowerCase() || ''
-    const arg = tmp.join(' ')
-
-    const reply = async (msg: string | MessageOptions) => {
-        return channel.send(msg).catch(noop)
-    }
-
-    handleCommand(cmd, arg, member, reply)
-    return 
-})
-
-const handleCommand = async (cmdName: string, arg: string, sender: GuildMember, replyCb: (msg: MessageOptions | string)=>any) => {
-
-    const session = Session.sessions.get(sender.guild.id)
-
-    const cmd = resolveCommand(cmdName)
-    if (!cmd) {
-        await replyCb(':x: **Invalid command!**')
+    const replyCb: CommandReplyCb = async (replyMsg: string | MessageOptions) => {
+        await msg.channel.send(replyMsg).catch((err)=>{
+            log(`Failed to send a reply message on guild ${msg.guildId}:\n${err}`, LoggingLabel.ERROR)
+        })
         return
     }
 
-    try {
-        await cmd.handler({session, sender, args: [arg], replyCb})
-    } catch (e) {
-        log(`cmd.handler() ERROR: ${e}`, LoggingLabel.ERROR)
-        await replyCb(`🚩 **Failed to handle the command:** \`\`\`${e}\`\`\``)
-    }
-    return
-}
+    await handleCommand(cmd, {
+        args,
+        sender: msg.member,
+        replyCb
+    })
+    return 
+})
 
 const gracefulExit = () => {
     log('SHUTTING DOWN', LoggingLabel.INFO)
