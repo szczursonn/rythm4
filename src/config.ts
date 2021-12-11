@@ -5,7 +5,7 @@ config()
 
 
 try {
-    commitId = execSync('git rev-parse HEAD').toString().trim().substr(0, 7)
+    commitId = execSync('git rev-parse HEAD').toString().trim().substring(0, 7)
 } catch (e) {}
 
 export const PREFIX = process.env.PREFIX || '%'
