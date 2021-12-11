@@ -10,10 +10,6 @@ const client = new Client({
 
 log(`Starting rythm4...`, LoggingLabel.INFO)
 
-if (!DISCORD_TOKEN) {
-    log('Token not provided, exiting', LoggingLabel.ERROR)
-    process.exit(1)
-}
 client.login(DISCORD_TOKEN)
 
 client.once('ready', async () => {
