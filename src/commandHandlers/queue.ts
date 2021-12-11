@@ -1,9 +1,8 @@
-import { AudioPlayerStatus } from "@discordjs/voice"
 import { MessageEmbed } from "discord.js"
-import { CommandHandler, CommandHandlerParams } from "../commands"
+import { CommandHandler } from "../commands"
 import { formatSongDuration } from "../utils"
 
-export const queueHandler: CommandHandler = async ({session, sender, replyCb}: CommandHandlerParams) => {
+export const queueHandler: CommandHandler = async ({session, sender, replyCb}) => {
     if (!session) {
         await replyCb(':x: **I am not active on this server**')
         return

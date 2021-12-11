@@ -1,9 +1,9 @@
 import { MessageEmbed } from "discord.js"
 import { PREFIX } from "../config"
-import { CommandHandler, CommandHandlerParams, commands } from "../commands"
+import { CommandHandler, commands } from "../commands"
 import { niceCase } from "../utils"
 
-export const helpHandler: CommandHandler = async ({replyCb}: CommandHandlerParams) => {
+export const helpHandler: CommandHandler = async ({replyCb}) => {
 
     const embed = new MessageEmbed()
         .setTitle(`List of commands for Rythm4`)

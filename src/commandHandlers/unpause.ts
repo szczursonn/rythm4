@@ -1,6 +1,6 @@
-import { CommandHandler, CommandHandlerParams } from "../commands"
+import { CommandHandler } from "../commands"
 
-export const unpauseHandler: CommandHandler = async ({session, replyCb}: CommandHandlerParams) => {
+export const unpauseHandler: CommandHandler = async ({session, replyCb}) => {
     if (!session) {
         await replyCb(':x: **I am not active on this server**')
         return

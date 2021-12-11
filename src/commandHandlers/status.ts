@@ -2,9 +2,9 @@ import { MessageEmbed, version } from "discord.js"
 import Session from "../Session"
 import { formatSongDuration } from "../utils"
 import { commitId, IS_DEVELOPMENT } from "../config"
-import { CommandHandler, CommandHandlerParams } from "../commands"
+import { CommandHandler } from "../commands"
 
-export const statusHandler: CommandHandler = async ({replyCb}: CommandHandlerParams) => {
+export const statusHandler: CommandHandler = async ({replyCb}) => {
 
     const sessionAmount = Session.sessions.size
 

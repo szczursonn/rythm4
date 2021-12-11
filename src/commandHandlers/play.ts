@@ -5,9 +5,9 @@ const usetube = require('usetube')
 
 import Session from "../Session";
 import Song from "../Song";
-import { CommandHandler, CommandHandlerParams } from "../commands";
+import { CommandHandler } from "../commands";
 
-export const playHandler: CommandHandler = async ({session, sender, args, replyCb}: CommandHandlerParams) => {
+export const playHandler: CommandHandler = async ({session, sender, args, replyCb}) => {
 
     const arg = args[0]
 
