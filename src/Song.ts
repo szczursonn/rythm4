@@ -1,17 +1,16 @@
 import { AudioResource, createAudioResource } from "@discordjs/voice"
 import { Snowflake } from "discord.js"
 import ytdl, { getInfo } from "ytdl-core-discord"
-import { finished } from 'stream'
 
 interface SongInfo {
     title: string,
     author: string,
     url: string,
-    duration: string,
-    addedBy: string,
+    duration: number,
+    addedBy: Snowflake,
 }
 
-class Song {
+class Song implements SongInfo {
     public readonly title: string
     public readonly author: string
     public readonly url: string
@@ -22,7 +21,7 @@ class Song {
         this.title = title,
         this.author = author,
         this.url = url,
-        this.duration = parseInt(duration)
+        this.duration = duration
         this.addedBy = addedBy
     }
 
@@ -32,25 +31,20 @@ class Song {
             filter: 'audio',
             quality: 'highestaudio'
         })
-        // After catching stream error, the song gets skipped automatically
-        finished(stream, (err) => {
-            if (err) {
-                console.log(`YTDL stream error: ${err}`)
-            }
-        })
+        
         return createAudioResource(stream, {
             inlineVolume: true
         })
     }
 
     public static async from(url: string, addedBy: Snowflake) {
-        const info = await getInfo(url)
+        const { videoDetails } = await getInfo(url)
 
         return new Song({
-            title: info.videoDetails.title,
-            author: info.videoDetails.author.name,
-            url: info.videoDetails.video_url,
-            duration: info.videoDetails.lengthSeconds,
+            title: videoDetails.title,
+            author: videoDetails.author.name,
+            url: videoDetails.video_url,
+            duration: parseInt(videoDetails.lengthSeconds),
             addedBy,
         })
     }
