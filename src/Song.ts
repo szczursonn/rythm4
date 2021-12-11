@@ -15,7 +15,7 @@ class Song implements SongInfo {
     public readonly author: string
     public readonly url: string
     public readonly duration: number
-    public readonly addedBy: string
+    public readonly addedBy: Snowflake
 
     private constructor({title, author, url, duration, addedBy}: SongInfo) {
         this.title = title,
