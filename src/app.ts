@@ -37,29 +37,24 @@ client.once('ready', async () => {
 })
 
 client.on('interactionCreate', async (interaction) => {
-    if (!(interaction instanceof CommandInteraction) || !interaction.guildId) {
-        return
-    }
-
-    const member = interaction.member
-    if (!(member instanceof GuildMember)) {
+    if (!(interaction instanceof CommandInteraction) || !interaction.guildId || !(interaction.member instanceof GuildMember) ) {
         return
     }
 
     const cmd = interaction.commandName
     const arg = interaction.options.get('song')?.value?.toString() || interaction.options.get('volume')?.value?.toString() || ''
 
-    let reply
+    let replyCb
     try {
         await interaction.deferReply()
-        reply = (msg: string | MessageOptions) => {
+        replyCb = (msg: string | MessageOptions) => {
             return interaction.followUp(msg).catch(noop)
         }
     } catch (e) {
-        reply = noop
+        replyCb = noop
     }
 
-    handleCommand(cmd, arg, member, reply)
+    handleCommand(cmd, arg, interaction.member, replyCb)
     return 
 })
 
