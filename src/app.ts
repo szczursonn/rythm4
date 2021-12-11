@@ -1,8 +1,8 @@
 import { PREFIX, DISCORD_TOKEN } from "./config";
 import { Client, CommandInteraction, GuildMember, Intents, MessageOptions } from "discord.js";
 import Session from "./Session";
-import { registerCommands, noop, log, LoggingLabel } from "./utils";
-import { CommandReplyCb, handleCommand, resolveCommand } from "./commands";
+import { registerCommands, log, LoggingLabel } from "./utils";
+import { CommandReplyCb, handleCommand } from "./commands";
 
 const client = new Client({
     intents: [Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
