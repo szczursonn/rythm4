@@ -1,4 +1,4 @@
-import { MessageEmbed, version } from "discord.js"
+import { MessageEmbed, version as discordJsVersion } from "discord.js"
 import Session from "../Session"
 import { bytesToMb, formatSongDuration } from "../utils"
 import { commitId, NODE_ENV } from "../config"
@@ -15,7 +15,7 @@ export const statusHandler: CommandHandler = async ({replyCb}) => {
                 .addFields(
                     { name: 'Used memory', value: `\`${bytesToMb(process.memoryUsage.rss())} MB\``, inline: false },
                     { name: 'Node.js version', value: `\`${process.version}\``, inline: false },
-                    { name: 'Discord.js version', value: `\`${version}\``, inline: false },
+                    { name: 'Discord.js version', value: `\`${discordJsVersion}\``, inline: false },
                     { name: 'Uptime', value: `\`${formatSongDuration(Math.floor(process.uptime()))}\``, inline: false },
                 )
                 .setFooter(commitId ? `Commit ID: ${commitId}` : 'Commit ID not found')
