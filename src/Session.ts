@@ -139,9 +139,11 @@ class Session {
         clearTimeout(this.disconnectTimeoutId)
 
         if (this.queue.length === 0) {
+            this.currentlyPlaying = null
             this.disconnectTimeoutId = Number(setTimeout(()=>{
                 this.destroy()
             }, 10*60*1000))
+            return
         }
 
         this.processingQueue = true
@@ -152,6 +154,7 @@ class Session {
             const audioResource = await nextSong.createAudioResource()
             this.audioPlayer.play(audioResource)
             this.processingQueue = false
+            this.currentlyPlaying = nextSong
         } catch (err) {
             log(`Failed to create audioResource: ${err}`, LoggingLabel.ERROR)
             this.processQueue()
