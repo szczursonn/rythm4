@@ -147,7 +147,8 @@ class Session {
         }
 
         this.processingQueue = true
-
+        this.audioPlayer.unpause()
+        
         const nextSong: Song = this.looping ? this.currentlyPlaying! : this.queue.shift()!
 
         try {
