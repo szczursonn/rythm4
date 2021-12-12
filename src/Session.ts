@@ -65,7 +65,7 @@ class Session {
         })
 
         this.audioPlayer.on('error', (err) => {
-            console.log(`audioPlayer error: ${err}`)
+            log(`audioPlayer error on guild ${this.guildId}:\n${err}`, LoggingLabel.ERROR)
         })
 
         this.voiceConnection.subscribe(this.audioPlayer)
