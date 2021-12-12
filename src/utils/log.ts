@@ -24,7 +24,7 @@ const formatLabel = (label: LoggingLabel): string => {
 }
 
 export const log = (message: any, label: LoggingLabel): void => {
-    if (label === LoggingLabel.DEBUG && NODE_ENV !== 'development') return
+    //if (label === LoggingLabel.DEBUG && NODE_ENV !== 'development') return
 
     const formattedLabel = formatLabel(label)
 
