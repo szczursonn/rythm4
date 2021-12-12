@@ -46,7 +46,7 @@ export const playHandler: CommandHandler = async ({session, sender, args, replyC
             await replyCb(`:thumbsup: **Joined voice channel \`${channel.name}\`!**`)
         } catch (e) {
             await replyCb(`:x: **Failed to join voice channel: \`\`\`${e}\`\`\`**`)
-            console.log(`Failed to join vc: ${e}`)
+            log(`Failed to join VC on guild ${guildId}:\n${e}`, LoggingLabel.DEBUG)
             return
         }
 
