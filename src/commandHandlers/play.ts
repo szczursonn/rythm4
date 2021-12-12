@@ -1,7 +1,7 @@
 import { Permissions, StageChannel, VoiceChannel } from "discord.js";
 import { DiscordGatewayAdapterCreator, entersState, joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
 import ytfps from 'ytfps';
-import usetube from 'usetube';
+const usetube = require('usetube')
 
 import Session from "../Session";
 import Song from "../Song";
