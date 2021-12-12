@@ -23,7 +23,7 @@ if (!process.env.PREFIX) {
 
 const getCommitId = (): string | undefined => {
     try {
-        return execSync('git rev-parse HEAD').toString().trim().substring(0, 7)
+        return execSync('git rev-parse HEAD').toString().trim()
     } catch (e) {
         return ''
     }
