@@ -71,7 +71,7 @@ class Session {
         this.voiceConnection.subscribe(this.audioPlayer)
 
         Session.sessions.set(guildId, this)
-        console.log(`Session created on guild ${this.guildId}`)
+        log(`Session created on guild ${this.guildId}`, LoggingLabel.INFO)
     }
 
     public skipSong() {
