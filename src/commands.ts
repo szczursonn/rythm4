@@ -33,8 +33,8 @@ export const resolveCommand = (alias: string): Command | undefined => {
 }
 
 export const handleCommand = async (cmdName: string, commandHandlerParams: CommandHandlerParams): Promise<void> => {
-    log(`Handling Command: ${commandHandlerParams.sender.user.username} , ${cmdName} , ${commandHandlerParams.args}`, LoggingLabel.DEBUG)
-    
+    log(`Handling Command: ${commandHandlerParams.sender.user.username} , ${cmdName} , [${commandHandlerParams.args.length}]`, LoggingLabel.DEBUG)
+
     const command = resolveCommand(cmdName)
     if (!command) {
         commandHandlerParams.replyCb(`:x: **Invalid command**`)
