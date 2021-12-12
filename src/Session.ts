@@ -138,7 +138,7 @@ class Session {
 
         clearTimeout(this.disconnectTimeoutId)
 
-        if (this.queue.length === 0) {
+        if (this.queue.length === 0 && !this.looping && this.currentlyPlaying) {
             this.currentlyPlaying = null
             this.disconnectTimeoutId = Number(setTimeout(()=>{
                 this.destroy()
