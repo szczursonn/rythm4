@@ -1,7 +1,7 @@
 import { MessageEmbed, version as discordJsVersion } from "discord.js"
 import Session from "../Session"
 import { bytesToMb, formatSongDuration } from "../utils"
-import { commitId, NODE_ENV } from "../config"
+import { COMMIT_ID, NODE_ENV } from "../config"
 import { CommandHandler } from "../commands"
 
 export const statusHandler: CommandHandler = async ({replyCb}) => {
@@ -18,7 +18,7 @@ export const statusHandler: CommandHandler = async ({replyCb}) => {
                     { name: 'Discord.js version', value: `\`${discordJsVersion}\``, inline: false },
                     { name: 'Uptime', value: `\`${formatSongDuration(Math.floor(process.uptime()))}\``, inline: false },
                 )
-                .setFooter(commitId ? `Commit ID: ${commitId}` : 'Commit ID not found')
+                .setFooter(COMMIT_ID ? `Commit ID: ${COMMIT_ID}` : 'Commit ID not found')
 
     await replyCb({embeds: [embed]})
     return

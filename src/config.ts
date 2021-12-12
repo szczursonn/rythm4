@@ -21,11 +21,17 @@ if (!process.env.PREFIX) {
     log(`Command prefix not provided, defaulting to ${DEFAULT_PREFIX}`, LoggingLabel.WARNING)
 }
 
-try {
-    commitId = execSync('git rev-parse HEAD').toString().trim().substring(0, 7)
-} catch (e) {}
+const getCommitId = (): string | undefined => {
+    try {
+        return execSync('git rev-parse HEAD').toString().trim().substring(0, 7)
+    } catch (e) {
+        return ''
+    }
+}
+
+
 
 export const PREFIX = process.env.PREFIX || DEFAULT_PREFIX
 export const DISCORD_TOKEN = process.env.DISCORD_TOKEN
 export const NODE_ENV = process.env.NODE_ENV || 'development'
-export var commitId: string | undefined
+export const COMMIT_ID = getCommitId()
