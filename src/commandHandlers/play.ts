@@ -87,7 +87,7 @@ export const playHandler: CommandHandler = async ({session, sender, args, replyC
         song = await Song.from(arg, sender.id)
     } catch (e) {
         try {
-            const id = (await usetube.searchVideo(arg)).videos[0].id
+            const id = (await usetube.searchVideo(args.join(''))).videos[0].id
             const url = `https://www.youtube.com/watch?v=${id}`
             song = await Song.from(url, sender.id)
         } catch (e) {
