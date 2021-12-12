@@ -90,9 +90,7 @@ export const playHandler: CommandHandler = async ({session, sender, args, replyC
             const id = (await usetube.searchVideo(args.join(''))).videos[0].id
             const url = `https://www.youtube.com/watch?v=${id}`
             song = await Song.from(url, sender.id)
-        } catch (e) {
-            console.log(e)
-        }   
+        } catch (_) {}
     }
     if (!song) {
         await replyCb(':octagonal_sign: **Failed to resolve searchphrase/url, or the video is age-restricted**')
