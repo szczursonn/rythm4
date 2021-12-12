@@ -1,5 +1,6 @@
 import { GuildMember, MessageOptions } from "discord.js";
 import { clearHandler, disconnectHandler, helpHandler, loopHandler, pauseHandler, playHandler, queueHandler, shuffleHandler, skipHandler, statusHandler, unpauseHandler } from "./commandHandlers";
+import { PREFIX } from "./config";
 import Session from "./Session";
 import { log, LoggingLabel } from "./utils";
 
@@ -33,7 +34,7 @@ export const resolveCommand = (alias: string): Command | undefined => {
 }
 
 export const handleCommand = async (cmdName: string, commandHandlerParams: CommandHandlerParams): Promise<void> => {
-    log(`Handling Command: ${commandHandlerParams.sender.user.username} , ${cmdName} , [${commandHandlerParams.args}]`, LoggingLabel.DEBUG)
+    log(`Handling Command: ${commandHandlerParams.sender.user.username} , ${PREFIX}${cmdName} , [${commandHandlerParams.args}]`, LoggingLabel.DEBUG)
 
     const command = resolveCommand(cmdName)
     if (!command) {
