@@ -1,7 +1,7 @@
 import { PREFIX, DISCORD_TOKEN } from "./config";
 import { Client, CommandInteraction, GuildMember, Intents, MessageOptions } from "discord.js";
 import Session from "./Session";
-import { registerCommands, log, LoggingLabel } from "./utils";
+import { registerSlashCommands, log, LoggingLabel } from "./utils";
 import { CommandReplyCb, handleCommand } from "./commands";
 
 const client = new Client({
@@ -17,7 +17,7 @@ client.once('ready', async () => {
 
     try {
         const clientId = client.user!.id
-        await registerCommands(clientId, DISCORD_TOKEN!)
+        await registerSlashCommands(clientId, DISCORD_TOKEN!)
         log('Registered slash commands', LoggingLabel.INFO)
     } catch (e) {
         log(`Failed to register slash commands: ${e}`, LoggingLabel.ERROR)

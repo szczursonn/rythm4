@@ -24,7 +24,7 @@ export const slashify = (cmd: Command): SlashCommand => {
 
 const slashCommands = commands.filter((cmd)=>!cmd.secret).map(slashify)
 
-export const registerCommands = async (clientId: Snowflake, token: string): Promise<void> => {
+export const registerSlashCommands = async (clientId: Snowflake, token: string): Promise<void> => {
     const rest = new REST({
         version: '9'
     }).setToken(token)
