@@ -10,8 +10,6 @@ import { log, LoggingLabel } from "../utils";
 
 export const playHandler: CommandHandler = async ({session, sender, args, replyCb}) => {
 
-    const arg = args[0]
-
     const channel = sender.voice.channel
     if (channel instanceof StageChannel) {
         await replyCb(':no_entry_sign: **Support for stage channels not implemented yet!**')
@@ -19,6 +17,12 @@ export const playHandler: CommandHandler = async ({session, sender, args, replyC
     }
     if (!(channel instanceof VoiceChannel)) {
         await replyCb(':x: **You have to be in a voice channel to use this command!**')
+        return
+    }
+
+    const arg = args[0]
+    if (!arg) {
+        await replyCb(':x: **You must provide a youtube video/playlist link or a searchphrase!**')
         return
     }
 
