@@ -44,7 +44,7 @@ export const handleCommand = async (cmdName: string, commandHandlerParams: Comma
         await command.handler(commandHandlerParams)
     } catch (err) {
         log(`Command handler failed: ${err}`, LoggingLabel.ERROR)
-        commandHandlerParams.replyCb(`🚩 **Failed to handle the command, contact bot owner**`)
+        commandHandlerParams.replyCb(`🚩 **Failed to handle the command**`)
     }
     
     return
