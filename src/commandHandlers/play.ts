@@ -95,7 +95,7 @@ export const playHandler: CommandHandler = async ({session, sender, args, replyC
         }   
     }
     if (!song) {
-        await replyCb(':octagonal_sign: Failed to resolve searchphrase/url, or the video is age-restricted')
+        await replyCb(':octagonal_sign: **Failed to resolve searchphrase/url, or the video is age-restricted**')
         return
     }
     session.enqueue(song)
