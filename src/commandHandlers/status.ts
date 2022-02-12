@@ -18,7 +18,7 @@ export const statusHandler: CommandHandler = async ({replyCb}) => {
                     { name: 'Discord.js version', value: `\`${discordJsVersion}\``, inline: false },
                     { name: 'Uptime', value: `\`${formatSongDuration(Math.floor(process.uptime()))}\``, inline: false },
                 )
-                .setFooter(COMMIT_ID ? `Commit ID: ${COMMIT_ID}` : 'Commit ID not found')
+                .setFooter({text: COMMIT_ID ? `Commit ID: ${COMMIT_ID}` : 'Commit ID not found'})
 
     await replyCb({embeds: [embed]})
     return
