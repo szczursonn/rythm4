@@ -1,8 +1,8 @@
 import { GuildMember, MessageOptions } from "discord.js";
 import { clearHandler, disconnectHandler, helpHandler, loopHandler, pauseHandler, playHandler, queueHandler, shuffleHandler, skipHandler, statusHandler, unpauseHandler } from "./commandHandlers";
 import { PREFIX } from "./config";
+import Logger from "./Logger";
 import Session from "./Session";
-import { log, LoggingLabel } from "./utils";
 
 export type Command = {
     aliases: string[],    // First one in array gets registered as a slash command and is used as command name in /help
@@ -34,7 +34,7 @@ export const resolveCommand = (alias: string): Command | undefined => {
 }
 
 export const handleCommand = async (cmdName: string, commandHandlerParams: CommandHandlerParams): Promise<void> => {
-    log(`Handling Command: ${commandHandlerParams.sender.user.username} , ${PREFIX}${cmdName} , [${commandHandlerParams.args}]`, LoggingLabel.DEBUG)
+    Logger.debug(`Handling Command: ${commandHandlerParams.sender.user.username} , ${PREFIX}${cmdName} , [${commandHandlerParams.args}]`)
 
     const command = resolveCommand(cmdName)
     if (!command) {
@@ -44,7 +44,7 @@ export const handleCommand = async (cmdName: string, commandHandlerParams: Comma
     try {
         await command.handler(commandHandlerParams)
     } catch (err) {
-        log(`Command handler failed: ${err}`, LoggingLabel.ERROR)
+        Logger.err(`Command handler failed: ${err}`)
         commandHandlerParams.replyCb(`🚩 **Failed to handle the command**`)
     }
     

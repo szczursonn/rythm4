@@ -1,7 +1,8 @@
 import { Snowflake } from "discord.js";
 import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, entersState, VoiceConnection, VoiceConnectionDisconnectReason, VoiceConnectionStatus } from "@discordjs/voice";
 import Song from "./Song";
-import { log, LoggingLabel, noop, shuffleArray, wait } from "./utils";
+import { noop, shuffleArray, wait } from "./utils";
+import Logger from "./Logger";
 
 class Session {
     private voiceConnection: VoiceConnection
@@ -65,13 +66,13 @@ class Session {
         })
 
         this.audioPlayer.on('error', (err) => {
-            log(`audioPlayer error on guild ${this.guildId}:\n${err}`, LoggingLabel.ERROR)
+            Logger.err(`audioPlayer error on guild ${this.guildId}:\n${err}`)
         })
 
         this.voiceConnection.subscribe(this.audioPlayer)
 
         Session.sessions.set(guildId, this)
-        log(`Session created on guild ${this.guildId}`, LoggingLabel.INFO)
+        Logger.info(`Session created on guild ${this.guildId}`)
     }
 
     public skipSong() {
@@ -117,7 +118,7 @@ class Session {
     public enqueue(song: Song) {
         this.queue.push(song)
         this.processQueue()
-        log(`Enqueued song ${song.title} on guild ${this.guildId}`, LoggingLabel.DEBUG)
+        Logger.debug(`Enqueued song ${song.title} on guild ${this.guildId}`)
     }
 
     public destroy() {
@@ -127,7 +128,7 @@ class Session {
         if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) this.voiceConnection.destroy()
         this.audioPlayer.stop(true)
         Session.sessions.delete(this.guildId)
-        log(`Session destroyed on guild ${this.guildId}`, LoggingLabel.INFO)
+        Logger.info(`Session destroyed on guild ${this.guildId}`)
     }
 
     private async processQueue() {
@@ -157,7 +158,7 @@ class Session {
             this.processingQueue = false
             this.currentlyPlaying = nextSong
         } catch (err) {
-            log(`Failed to create audioResource: ${err}`, LoggingLabel.ERROR)
+            Logger.err(`Failed to create audioResource: ${err}`)
             this.processQueue()
             this.processingQueue = false
         }

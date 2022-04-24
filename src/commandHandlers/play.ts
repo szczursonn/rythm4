@@ -6,7 +6,7 @@ const usetube = require('usetube')
 import Session from "../Session";
 import Song from "../Song";
 import { CommandHandler } from "../commands";
-import { log, LoggingLabel } from "../utils";
+import Logger from "../Logger";
 
 export const playHandler: CommandHandler = async ({session, sender, args, replyCb}) => {
 
@@ -46,7 +46,7 @@ export const playHandler: CommandHandler = async ({session, sender, args, replyC
             await replyCb(`:thumbsup: **Joined voice channel \`${channel.name}\`!**`)
         } catch (e) {
             await replyCb(`:x: **Failed to join voice channel: \`\`\`${e}\`\`\`**`)
-            log(`Failed to join VC on guild ${guildId}:\n${e}`, LoggingLabel.DEBUG)
+            Logger.debug(`Failed to join VC on guild ${guildId}:\n${e}`)
             return
         }
 
@@ -77,7 +77,7 @@ export const playHandler: CommandHandler = async ({session, sender, args, replyC
                 await replyCb(':octagonal_sign: **This playlist is private**')
                 return
             } else {
-                log(`Playlist fetch failed without it being private: ${e}`, LoggingLabel.ERROR)
+                Logger.err(`Playlist fetch failed without it being private: ${e}`)
             }
         }
     }

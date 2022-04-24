@@ -1,26 +1,27 @@
 import { PREFIX, DISCORD_TOKEN } from "./config";
 import { Client, CommandInteraction, GuildMember, Intents, MessageOptions } from "discord.js";
 import Session from "./Session";
-import { registerSlashCommands, log, LoggingLabel } from "./utils";
+import { registerSlashCommands } from "./utils";
 import { CommandReplyCb, handleCommand } from "./commands";
+import Logger from "./Logger";
 
 const client = new Client({
     intents: [Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
 })
 
-log(`Starting rythm4...`, LoggingLabel.INFO)
+Logger.info(`Starting rythm4...`)
 
 client.login(DISCORD_TOKEN)
 
 client.once('ready', async () => {
-    log(`Logged in as ${client.user!.tag}, command prefix: ${PREFIX}`, LoggingLabel.INFO)
+    Logger.info(`Logged in as ${client.user!.tag}, command prefix: ${PREFIX}`)
 
     try {
         const clientId = client.user!.id
         await registerSlashCommands(clientId, DISCORD_TOKEN!)
-        log('Registered slash commands', LoggingLabel.INFO)
+        Logger.info('Registered slash commands')
     } catch (e) {
-        log(`Failed to register slash commands: ${e}`, LoggingLabel.ERROR)
+        Logger.err(`Failed to register slash commands: ${e}`)
     }
 
     try {
@@ -31,7 +32,7 @@ client.once('ready', async () => {
             }]
         })
     } catch (e) {
-        log(`Failed to set presence: ${e}`, LoggingLabel.ERROR)
+        Logger.err(`Failed to set presence: ${e}`)
     }
     
 })
@@ -49,12 +50,12 @@ client.on('interactionCreate', async (interaction) => {
             await interaction.deferReply()
             replyCb = async (msg: string | MessageOptions) => {
                 await interaction.followUp(msg).catch((err)=>{
-                    log(`Failed to reply to interaction on guild ${interaction.guildId}:\n${err}`, LoggingLabel.ERROR)
+                    Logger.err(`Failed to reply to interaction on guild ${interaction.guildId}:\n${err}`)
                 })
                 return
             }
         } catch (err) {
-            log(`Failed to defer reply to interaction on guild ${interaction.guildId}:\n${err}`, LoggingLabel.ERROR)
+            Logger.err(`Failed to defer reply to interaction on guild ${interaction.guildId}:\n${err}`)
         }
 
     await handleCommand(cmd, {
@@ -74,7 +75,7 @@ client.on('messageCreate', async (msg) => {
 
     const replyCb: CommandReplyCb = async (replyMsg: string | MessageOptions) => {
         await msg.channel.send(replyMsg).catch((err)=>{
-            log(`Failed to send a reply message on guild ${msg.guildId}:\n${err}`, LoggingLabel.ERROR)
+            Logger.err(`Failed to send a reply message on guild ${msg.guildId}:\n${err}`)
         })
         return
     }
@@ -89,7 +90,7 @@ client.on('messageCreate', async (msg) => {
 })
 
 const gracefulExit = () => {
-    log('SHUTTING DOWN', LoggingLabel.INFO)
+    Logger.info('SHUTTING DOWN')
     Session.getAllSessions().forEach(session=>session.destroy())
     client.destroy()
     // process.exit() is delayed to allow for client to destroy all sessions and self properly
