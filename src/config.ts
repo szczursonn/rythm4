@@ -6,7 +6,7 @@ const dotenvConfigResult = config()
 if (dotenvConfigResult.error) {
     Logger.debug(`Failed to load .env file: ${dotenvConfigResult.error}`)
 } else {
-    const parsedKeys = Object.values(dotenvConfigResult.parsed!)
+    const parsedKeys = Object.keys(dotenvConfigResult.parsed!)
     Logger.debug(`Parsed [${parsedKeys}] from .env file`)
 }
 
