@@ -2,7 +2,7 @@ import { AudioResource, createAudioResource } from "@discordjs/voice"
 import { Snowflake } from "discord.js"
 import ytdl, { getInfo } from "ytdl-core-discord"
 
-interface SongInfo {
+interface ISong {
     title: string,
     author: string,
     url: string,
@@ -10,14 +10,14 @@ interface SongInfo {
     addedBy: Snowflake,
 }
 
-class Song implements SongInfo {
+class Song implements ISong {
     public readonly title: string
     public readonly author: string
     public readonly url: string
     public readonly duration: number
     public readonly addedBy: Snowflake
 
-    private constructor({title, author, url, duration, addedBy}: SongInfo) {
+    public constructor({title, author, url, duration, addedBy}: ISong) {
         this.title = title,
         this.author = author,
         this.url = url,

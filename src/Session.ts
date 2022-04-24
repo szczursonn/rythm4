@@ -16,7 +16,7 @@ class Session {
 
     private static sessions: Map<Snowflake,Session> = new Map()
 
-    constructor(voiceConnection: VoiceConnection, guildId: Snowflake) {
+    public constructor(voiceConnection: VoiceConnection, guildId: Snowflake) {
         
         this.voiceConnection = voiceConnection
         this.audioPlayer = createAudioPlayer()
