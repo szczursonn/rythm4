@@ -1,4 +1,6 @@
-import { GuildMember, MessageOptions } from "discord.js";
+import { GuildMember, MessageOptions, Snowflake } from "discord.js";
+import { REST } from '@discordjs/rest'
+import { Routes } from "discord-api-types/v9"
 import { PREFIX } from "../config";
 import Logger from "../Logger";
 import Session from "../Session";
@@ -13,6 +15,8 @@ import unpause from "./unpause";
 import help from "./help";
 import clear from "./clear";
 import status from "./status";
+import slash from "./slash";
+import unslash from "./unslash";
 
 export type Command = {
     aliases: string[],    // First one in array gets registered as a slash command and is used as command name in /help
@@ -26,6 +30,17 @@ export type Command = {
         required: boolean
     }[],
     handler: CommandHandler
+}
+
+export type SlashCommand = {
+    name: string,
+    description: string,
+    options: {
+        name: string,
+        description: string,
+        type: number,
+        required: boolean
+    }[] | undefined
 }
 
 export type CommandHandler = (commandHandlerParams: CommandHandlerParams)=>Promise<void>
@@ -68,8 +83,26 @@ export const commands: Command[] = [
     unpause,
     help,
     clear,
-    status
+    status,
+    slash,
+    unslash
 ]
+
+export const registerSlashCommands = async (clientId: Snowflake, guildId: Snowflake, token: string): Promise<any> => {
+    const rest = new REST({
+        version: '9'
+    }).setToken(token)
+    
+    await rest.put(Routes.applicationGuildCommands(clientId, guildId), {body: slashCommands})
+}
+
+export const unregisterSlashCommands = async (clientId: Snowflake, guildId: Snowflake, token: string): Promise<any> => {
+    const rest = new REST({
+        version: '9'
+    }).setToken(token)
+
+    await rest.put(Routes.applicationGuildCommands(clientId, guildId), {body: []})
+}
 
 const commandMap = new Map<string, Command>()
 for (const command of commands) {
@@ -77,3 +110,11 @@ for (const command of commands) {
         commandMap.set(alias, command)
     }
 }
+
+const slashCommands: SlashCommand[] = commands
+    .filter(cmd=>!cmd.secret) // dont register secret commands
+    .map(cmd=>({
+        name: cmd.aliases[0],
+        description: cmd.description,
+        options: cmd.options
+    }))

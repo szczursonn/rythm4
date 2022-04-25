@@ -1,7 +1,6 @@
 import { PREFIX, DISCORD_TOKEN } from "./config";
 import { Client, CommandInteraction, GuildMember, Intents, MessageOptions } from "discord.js";
 import Session from "./Session";
-import { registerSlashCommands } from "./utils";
 import { CommandReplyCb, handleCommand } from "./commands";
 import Logger from "./Logger";
 
@@ -14,14 +13,6 @@ client.login(DISCORD_TOKEN)
 
 client.once('ready', async () => {
     Logger.info(`Logged in as ${client.user!.tag}, command prefix: ${PREFIX}`)
-
-    try {
-        const clientId = client.user!.id
-        await registerSlashCommands(clientId, DISCORD_TOKEN!)
-        Logger.info('Registered slash commands')
-    } catch (e) {
-        Logger.err(`Failed to register slash commands: ${e}`)
-    }
 
     try {
         client.user!.setPresence({
