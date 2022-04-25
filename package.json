@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node build/app.js",
-    "postinstall": "tsc",
+    "build": "tsc",
     "start-dev": "ts-node src/app.ts"
   },
   "author": "szczursonn",
