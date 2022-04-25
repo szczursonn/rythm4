@@ -94,11 +94,14 @@ const play: Command = {
         }
 
         let song
+        let err1
+        let err2
         // from link
         if (arg.startsWith('http')) {
             try {
                 song = await Song.from(arg, sender.id)
             } catch (err) {
+                err1=err
                 if (String(err).includes('410')) {
                     replyCb(':octagonal_sign: **Video is age-restricted**')
                     return
@@ -111,10 +114,13 @@ const play: Command = {
                 const id = (await usetube.searchVideo(args.join(''))).videos[0].id
                 const url = `https://www.youtube.com/watch?v=${id}`
                 song = await Song.from(url, sender.id)
-            } catch (_) {}
+            } catch (err) {
+                err2=err
+            }
         }
         
         if (!song) {
+            Logger.debug(`Failed to find video, link err: ${err1} , search err: ${err2}`)
             await replyCb(':octagonal_sign: **Failed to resolve searchphrase/url, or the video is age-restricted**')
             return
         }
