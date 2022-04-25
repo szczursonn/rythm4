@@ -40,7 +40,7 @@ export type CommandHandlerParams = {
 export type CommandReplyCb = (msg: MessageOptions | string)=>Promise<void>
 
 export const handleCommand = async (cmdName: string, commandHandlerParams: CommandHandlerParams): Promise<void> => {
-    Logger.debug(`Handling Command: ${commandHandlerParams.sender.user.username} , ${PREFIX}${cmdName} , [${commandHandlerParams.args}]`)
+    Logger.debug(`Handling Command: ${PREFIX}${cmdName} ${commandHandlerParams.args.join(' ')}, ${commandHandlerParams.sender.guild.name}/${commandHandlerParams.sender.user.username}`)
 
     const command = commandMap.get(cmdName)
     if (!command) {
