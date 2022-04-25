@@ -32,6 +32,7 @@
     "ytfps": "^1.0.5"
   },
   "devDependencies": {
+    "@types/usetube": "^2.1.0",
     "ts-node": "^10.2.1",
     "typescript": "^4.4.3"
   }

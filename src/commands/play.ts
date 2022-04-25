@@ -1,7 +1,7 @@
 import { Permissions, StageChannel, VoiceChannel } from "discord.js";
 import { DiscordGatewayAdapterCreator, entersState, joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
 import ytfps from 'ytfps';
-const usetube = require('usetube')
+import usetube from 'usetube'
 
 import Session from "../Session";
 import Song from "../Song";
@@ -92,17 +92,28 @@ const play: Command = {
                 }
             }
         }
-    
+
         let song
-        try {
-            song = await Song.from(arg, sender.id)
-        } catch (e) {
+        // from link
+        if (arg.startsWith('http')) {
+            try {
+                song = await Song.from(arg, sender.id)
+            } catch (err) {
+                if (String(err).includes('410')) {
+                    replyCb(':octagonal_sign: **Video is age-restricted**')
+                    return
+                }
+            }
+        }
+        // search
+        if (!song) {
             try {
                 const id = (await usetube.searchVideo(args.join(''))).videos[0].id
                 const url = `https://www.youtube.com/watch?v=${id}`
                 song = await Song.from(url, sender.id)
             } catch (_) {}
         }
+        
         if (!song) {
             await replyCb(':octagonal_sign: **Failed to resolve searchphrase/url, or the video is age-restricted**')
             return
