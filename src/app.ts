@@ -9,8 +9,7 @@ const client = new Client({
     intents: [Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
 })
 
-Logger.info(`Starting rythm4...`)
-
+Logger.info(`Logging in...`)
 client.login(DISCORD_TOKEN)
 
 client.once('ready', async () => {
