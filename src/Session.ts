@@ -29,7 +29,7 @@ class Session {
         this.processingQueue = false
 
         // https://github.com/discordjs/voice/blob/main/examples/music-bot/src/music/subscription.ts#L32
-        this.voiceConnection.on('stateChange', async (_, newState) => {
+        this.voiceConnection.on<'stateChange'>('stateChange', async (_, newState) => {
             if (newState.status === VoiceConnectionStatus.Disconnected) {
                 if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
                     // Wait 5 seconds to determine if client was kicked from VC or is switching VC
@@ -58,7 +58,7 @@ class Session {
             }
         })
 
-        this.audioPlayer.on('stateChange', (oldState, newState) => {
+        this.audioPlayer.on<'stateChange'>('stateChange', (oldState, newState) => {
             if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
                 // audio resource finished playing
                 this.processQueue()
