@@ -13,7 +13,7 @@ if (dotenvConfigResult.error) {
 const DEFAULT_PREFIX = '$'
 
 if (!process.env.DISCORD_TOKEN) {
-    Logger.err('Discord Token not provded, shutting down')
+    Logger.err('Discord Token not provided, shutting down')
     process.exit(1)
 }
 
