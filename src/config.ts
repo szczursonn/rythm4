@@ -1,5 +1,5 @@
 import { config } from "dotenv"
-import { execSync } from 'child_process'
+import { readFileSync } from 'fs'
 import Logger from "./Logger"
 const dotenvConfigResult = config()
 
@@ -23,9 +23,13 @@ if (!process.env.PREFIX) {
 
 const getCommitId = (): string | undefined => {
     try {
-        return execSync('git rev-parse HEAD').toString().trim()
+        const head = readFileSync('./.git/HEAD').toString().trim()
+        if (head.includes(':')) {
+            return readFileSync(`./.git/${head.substring(5)}`).toString().trim()
+        }
+        return head
     } catch (e) {
-        return ''
+        return
     }
 }
 
