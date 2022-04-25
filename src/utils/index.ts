@@ -1,6 +1,5 @@
 export * from './formatSongDuration'
 export * from './niceCase'
-export * from './noop'
 export * from './registerSlashCommands'
 export * from './shuffleArray'
 export * from './wait'

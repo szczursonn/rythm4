@@ -1,7 +1,7 @@
 import { Snowflake } from "discord.js";
 import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, entersState, VoiceConnection, VoiceConnectionDisconnectReason, VoiceConnectionStatus } from "@discordjs/voice";
 import Song from "./Song";
-import { noop, shuffleArray, wait } from "./utils";
+import { shuffleArray, wait } from "./utils";
 import Logger from "./Logger";
 
 class Session {
@@ -122,7 +122,7 @@ class Session {
     }
 
     public destroy() {
-        this.destroy = noop   // Can only be called once
+        this.destroy = ()=>{}   // Can only be called once
         this.queue = []
         clearTimeout(this.disconnectTimeoutId)
         if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) this.voiceConnection.destroy()
