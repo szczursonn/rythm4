@@ -1,6 +1,7 @@
 import { AudioResource, createAudioResource } from "@discordjs/voice"
 import { Snowflake } from "discord.js"
 import ytdl, { getInfo } from "ytdl-core-discord"
+import Logger from "./Logger"
 
 interface ISong {
     title: string,
@@ -30,6 +31,10 @@ class Song implements ISong {
             highWaterMark: 1<<25,
             filter: 'audio',
             quality: 'highestaudio'
+        })
+
+        stream.once('error', (e) => {
+            Logger.err(`Audio stream error: ${e}`)
         })
         
         return createAudioResource(stream)
