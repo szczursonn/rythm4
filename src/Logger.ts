@@ -1,21 +1,19 @@
 import chalk from 'chalk'
 
-enum LogLevel {
-    INFO = 'INFO',
-    ERROR = 'ERROR',
-    DEBUG = 'DEBUG'
-}
+type LogLevel = 'INFO' | 'ERROR' | 'FATAL' | 'DEBUG'
 
 class Logger {
     private constructor() {}
 
-    private static formatLabel(label: LogLevel) {
+    private static colorLabel(label: LogLevel): string {
         switch (label) {
-            case LogLevel.INFO:
+            case 'INFO':
                 return chalk.bgGreen(label)
-            case LogLevel.ERROR:
+            case 'ERROR':
+                return chalk.bgRedBright(label)
+            case 'FATAL':
                 return chalk.bgRed(label)
-            case LogLevel.DEBUG:
+            case 'DEBUG':
                 return chalk.bgMagenta(label)
         }
     }
@@ -24,22 +22,28 @@ class Logger {
         return chalk.bgWhite.black(timestamp)
     }
 
-    private static _log(msg: string, label: LogLevel) {
+    private static _log(msg: any, label: LogLevel) {
         const timestamp = `[${new Date().toISOString()}]`
 
-        console.log(this.formatDate(timestamp) + ` ${this.formatLabel(label)} ${msg}`)
+        const _msg = (msg instanceof Error) ? `${msg.name}: ${msg.stack}` : `${msg}`
+
+        console.log(`${this.formatDate(timestamp)}${this.colorLabel(label)} ${_msg}`)
     }
 
-    public static info(msg: string) {
-        Logger._log(msg, LogLevel.INFO)
+    public static info(msg: any) {
+        Logger._log(msg, 'INFO')
     }
 
-    public static err(msg: string) {
-        Logger._log(msg, LogLevel.ERROR)
+    public static err(msg: any) {
+        Logger._log(msg, 'ERROR')
     }
 
-    public static debug(msg: string) {
-        Logger._log(msg, LogLevel.DEBUG)
+    public static fatal(msg: any) {
+        Logger._log(msg, 'FATAL')
+    }
+
+    public static debug(msg: any) {
+        Logger._log(msg, 'DEBUG')
     }
 
 }
