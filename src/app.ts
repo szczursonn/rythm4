@@ -1,14 +1,14 @@
 import { PREFIX, DISCORD_TOKEN } from "./config";
-import { Client, CommandInteraction, GuildMember, Intents, MessageOptions } from "discord.js";
+import { Client, ActivityType, CommandInteraction, GuildMember, EmbedBuilder, Embed } from "discord.js";
 import Session from "./Session";
 import { CommandReplyCb, handleCommand } from "./commands";
 import Logger from "./Logger";
 
 const client = new Client({
-    intents: [Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
+    intents: ['GuildVoiceStates', 'Guilds', 'GuildMessages', 'MessageContent']
 })
 
-Logger.info(`Logging in...`)
+Logger.info(`Starting app...`)
 client.login(DISCORD_TOKEN)
 
 client.once('ready', async () => {
@@ -18,13 +18,13 @@ client.once('ready', async () => {
         client.user!.setPresence({
             activities: [{
                 name: `${PREFIX}help`,
-                type: 'COMPETING'
+                type: ActivityType.Competing
             }]
         })
     } catch (e) {
-        Logger.err(`Failed to set presence: ${e}`)
+        Logger.err(`Failed to set presence: `)
+        Logger.err(e)
     }
-    
 })
 
 client.on('interactionCreate', async (interaction) => {
@@ -38,14 +38,16 @@ client.on('interactionCreate', async (interaction) => {
     let replyCb: CommandReplyCb = async ()=>{}
         try {
             await interaction.deferReply()
-            replyCb = async (msg: string | MessageOptions) => {
-                await interaction.followUp(msg).catch((err)=>{
-                    Logger.err(`Failed to reply to interaction on guild ${interaction.guildId}:\n${err}`)
+            replyCb = async (replyMsg: string | EmbedBuilder) => {
+                await interaction.followUp(typeof replyMsg === 'string' ? replyMsg : {embeds: [replyMsg]}).catch((err)=>{
+                    Logger.err(`Failed to reply to interaction on guild ${interaction.guildId}: `)
+                    Logger.err(err)
                 })
                 return
             }
         } catch (err) {
-            Logger.err(`Failed to defer reply to interaction on guild ${interaction.guildId}:\n${err}`)
+            Logger.err(`Failed to defer reply to interaction on guild ${interaction.guildId}: `)
+            Logger.err(err)
         }
 
     await handleCommand(cmd, {
@@ -54,18 +56,18 @@ client.on('interactionCreate', async (interaction) => {
         args: [arg],
         replyCb
     })
-    return 
+    return
 })
 
 client.on('messageCreate', async (msg) => {
-    if (!msg.guild || !msg.content || !msg.channel || !msg.guild || !msg.content.startsWith(PREFIX) || msg.author.bot || !msg.member) return
-
+    if (!msg.guild || !msg.content || !msg.channel || !msg.content.startsWith(PREFIX) || msg.author.bot || !msg.member) return
     const args = msg.content.substring(PREFIX.length).split(' ')
     const cmd = args.shift()?.toLowerCase() || ''
 
-    const replyCb: CommandReplyCb = async (replyMsg: string | MessageOptions) => {
-        await msg.channel.send(replyMsg).catch((err)=>{
-            Logger.err(`Failed to send a reply message on guild ${msg.guildId}:\n${err}`)
+    const replyCb: CommandReplyCb = async (replyMsg: string | EmbedBuilder) => {
+        await msg.channel.send(typeof replyMsg === 'string' ? replyMsg : {embeds: [replyMsg]}).catch((err)=>{
+            Logger.err(`Failed to send a reply message on guild ${msg.guildId}: `)
+            Logger.err(err)
         })
         return
     }

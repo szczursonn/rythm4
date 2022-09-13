@@ -1,4 +1,4 @@
-import { Permissions, StageChannel, VoiceChannel } from "discord.js";
+import { StageChannel, VoiceChannel } from "discord.js";
 import { DiscordGatewayAdapterCreator, entersState, joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
 import ytfps from 'ytfps';
 const usetube = require('usetube')  // IMPORT IS BROKEN
@@ -40,8 +40,8 @@ const play: Command = {
         const guildId = sender.guild.id
     
         if (!session) {
-            const myPermissions = channel.permissionsFor(channel.guild.me!)
-            if (!myPermissions.has(Permissions.FLAGS.CONNECT)) {
+            const myPermissions = channel.permissionsFor(channel.guild.members.me!)
+            if (!myPermissions.has('Connect')) {
                 await replyCb(`:x: **I don't have permission to join your voice channel!**`)
                 return
             }
@@ -49,7 +49,7 @@ const play: Command = {
             const voiceConnection = joinVoiceChannel({
                 channelId: channel.id,
                 guildId,
-                adapterCreator: channel.guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator
+                adapterCreator: channel.guild.voiceAdapterCreator
             })
     
             try {

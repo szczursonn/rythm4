@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js"
+import { EmbedBuilder } from "discord.js"
 import Session from "../Session"
 import { formatSongDuration } from "../utils"
 import { COMMIT_ID, NODE_ENV } from "../config"
@@ -13,7 +13,7 @@ const status: Command = {
 
         const sessionAmount = Session.getAllSessions().length
     
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
                 .setTitle(`Status`)
                 .setColor('#eb0c31')
                     .addFields(
@@ -23,7 +23,7 @@ const status: Command = {
                     )
                     .setFooter({text: COMMIT_ID ? `Git commit ID: ${COMMIT_ID}` : 'Git commit ID not found'})
     
-        await replyCb({embeds: [embed]})
+        await replyCb(embed)
         return
     }
 }

@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js"
+import { EmbedBuilder } from "discord.js"
 import { PREFIX } from "../config"
 import { Command, commands } from "."
 import { niceCase } from "../utils"
@@ -10,7 +10,7 @@ const help: Command = {
     secret: false,
     handler: async ({replyCb}) => {
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setTitle(`List of commands for rythm4`)
             .setColor('#0189df')
             .setURL('https://github.com/szczursonn/rythm4')
@@ -23,7 +23,7 @@ const help: Command = {
                 }
             }))
     
-        await replyCb({embeds: [embed]})
+        await replyCb(embed)
         return
     }
 }

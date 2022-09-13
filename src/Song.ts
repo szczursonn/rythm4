@@ -1,6 +1,7 @@
 import { AudioResource, createAudioResource } from "@discordjs/voice"
 import { Snowflake } from "discord.js"
-import ytdl, { getInfo } from "ytdl-core-discord"
+import ytdl, { getInfo } from "ytdl-core"
+import { YT_COOKIE } from "./config"
 import Logger from "./Logger"
 
 interface ISong {
@@ -26,22 +27,34 @@ class Song implements ISong {
         this.addedBy = addedBy
     }
 
+    private static get requestOptions() {
+        return YT_COOKIE !== undefined ? {
+            headers: {
+                cookie: YT_COOKIE
+            }
+        } : undefined
+    }
+
     public async createAudioResource(): Promise<AudioResource> {
-        const stream = await ytdl(this.url, {
+        const stream = ytdl(this.url, {
             highWaterMark: 1<<25,
             filter: 'audio',
-            quality: 'highestaudio'
+            quality: 'highestaudio',
+            requestOptions: Song.requestOptions
         })
 
         stream.once('error', (e) => {
-            Logger.err(`Audio stream error: ${e}`)
+            Logger.err(`Audio stream error: `)
+            Logger.err(e)
         })
         
         return createAudioResource(stream)
     }
 
     public static async from(url: string, addedBy: Snowflake) {
-        const { videoDetails } = await getInfo(url)
+        const { videoDetails } = await getInfo(url, {
+            requestOptions: Song.requestOptions
+        })
 
         return new Song({
             title: videoDetails.title,

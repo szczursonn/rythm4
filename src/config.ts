@@ -21,6 +21,10 @@ if (!process.env.PREFIX) {
     Logger.info(`Command prefix not provided, defaulting to ${DEFAULT_PREFIX}`)
 }
 
+if (!process.env.YT_COOKIE) {
+    Logger.info('Youtube cookie not provided, age restricted videos will not work')
+}
+
 const getCommitId = (): string | undefined => {
     try {
         const head = readFileSync('./.git/HEAD').toString().trim()
@@ -36,6 +40,7 @@ const getCommitId = (): string | undefined => {
 
 
 export const PREFIX = process.env.PREFIX || DEFAULT_PREFIX
+export const YT_COOKIE = process.env.YT_COOKIE
 export const DISCORD_TOKEN = process.env.DISCORD_TOKEN
 export const NODE_ENV = process.env.NODE_ENV || 'development'
 export const COMMIT_ID = getCommitId()

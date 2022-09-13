@@ -1,6 +1,6 @@
-import { GuildMember, MessageOptions, Snowflake } from "discord.js";
+import { EmbedBuilder, GuildMember, Snowflake } from "discord.js";
 import { REST } from '@discordjs/rest'
-import { Routes } from "discord-api-types/v9"
+import { Routes } from "discord-api-types/v10"
 import { PREFIX } from "../config";
 import Logger from "../Logger";
 import Session from "../Session";
@@ -52,10 +52,10 @@ export type CommandHandlerParams = {
     replyCb: CommandReplyCb
 }
 
-export type CommandReplyCb = (msg: MessageOptions | string)=>Promise<void>
+export type CommandReplyCb = (msg: string | EmbedBuilder)=>Promise<void>
 
 export const handleCommand = async (cmdName: string, commandHandlerParams: CommandHandlerParams): Promise<void> => {
-    Logger.debug(`Handling Command: ${PREFIX}${cmdName} ${commandHandlerParams.args.join(' ')}, ${commandHandlerParams.sender.guild.name}/${commandHandlerParams.sender.user.username}`)
+    Logger.debug(`Handling Command: "${PREFIX}${cmdName} ${commandHandlerParams.args.join(' ')}", ${commandHandlerParams.sender.user.username}@${commandHandlerParams.sender.guild.name}`)
 
     const command = commandMap.get(cmdName)
     if (!command) {
@@ -65,7 +65,8 @@ export const handleCommand = async (cmdName: string, commandHandlerParams: Comma
     try {
         await command.handler(commandHandlerParams)
     } catch (err) {
-        Logger.err(`Command handler failed: ${err}`)
+        Logger.err(`Command handler of ${cmdName} failed: `)
+        Logger.err(err)
         commandHandlerParams.replyCb(`🚩 **Failed to handle the command**`)
     }
     
@@ -89,17 +90,13 @@ export const commands: Command[] = [
 ]
 
 export const registerSlashCommands = async (clientId: Snowflake, guildId: Snowflake, token: string): Promise<any> => {
-    const rest = new REST({
-        version: '9'
-    }).setToken(token)
+    const rest = new REST().setToken(token)
     
     await rest.put(Routes.applicationGuildCommands(clientId, guildId), {body: slashCommands})
 }
 
 export const unregisterSlashCommands = async (clientId: Snowflake, guildId: Snowflake, token: string): Promise<any> => {
-    const rest = new REST({
-        version: '9'
-    }).setToken(token)
+    const rest = new REST().setToken(token)
 
     await rest.put(Routes.applicationGuildCommands(clientId, guildId), {body: []})
 }

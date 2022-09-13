@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js"
+import { Embed, EmbedBuilder } from "discord.js"
 import { Command } from "."
 import { formatSongDuration } from "../utils"
 
@@ -15,7 +15,7 @@ const queue: Command = {
         
         const guildName = sender.guild.name
     
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
         .setTitle(`Queue for ${guildName}`)
         .setColor('#0189df')
         
@@ -55,7 +55,7 @@ const queue: Command = {
             embed.setDescription(`Queue length: **${formatSongDuration(queueDuration)}**\nLooping: ${session.isLooping() ? ':green_circle:' : ':red_circle:'}`)
         }
     
-        await replyCb({embeds: [embed]})
+        await replyCb(embed)
         return
     }
 }

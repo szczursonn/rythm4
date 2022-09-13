@@ -1,5 +1,4 @@
 import { Command, unregisterSlashCommands } from ".";
-import { Permissions } from "discord.js";
 import Logger from "../Logger";
 import { DISCORD_TOKEN } from "../config";
 
@@ -10,7 +9,7 @@ const unslash: Command = {
     secret: false,
     handler: async ({sender, replyCb}) => {
 
-        if (!sender.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+        if (!sender.permissions.has('Administrator')) {
             replyCb('❌ **You need to be an admin to use this command!**')
             return
         }
