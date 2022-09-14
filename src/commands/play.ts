@@ -1,7 +1,7 @@
 import { StageChannel, VoiceChannel } from "discord.js";
-import { DiscordGatewayAdapterCreator, entersState, joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
+import { entersState, joinVoiceChannel, VoiceConnectionStatus } from "@discordjs/voice";
 import ytfps from 'ytfps';
-const usetube = require('usetube')  // IMPORT IS BROKEN
+import ytsearch from 'yt-search';
 
 import Session from "../Session";
 import Song from "../Song";
@@ -111,17 +111,28 @@ const play: Command = {
         // search
         if (!song) {
             try {
-                const id = (await usetube.searchVideo(args.join(''))).videos[0].id
+                const id = (await ytsearch(args.join(''))).videos.shift()?.videoId
+                if (id === undefined) {
+                    await replyCb(':octagonal_sign: **Failed to find a video from searchphrase**')
+                    return
+                }
                 const url = `https://www.youtube.com/watch?v=${id}`
                 song = await Song.from(url, sender.id)
             } catch (err) {
+                if (String(err).includes('410')) {
+                    replyCb(':octagonal_sign: **Video is age-restricted**')
+                    return
+                }
                 err2=err
             }
         }
         
         if (!song) {
-            Logger.debug(`Failed to find video, link err: ${err1} , search err: ${err2}`)
-            await replyCb(':octagonal_sign: **Failed to resolve searchphrase/url, or the video is age-restricted**')
+            Logger.debug(`Failed to find video, link err: `)
+            Logger.debug(err1)
+            Logger.debug('search err: ')
+            Logger.debug(err2)
+            await replyCb(':octagonal_sign: **There has been an unexpected error, contact bot owner**')
             return
         }
         session.enqueue(song)
