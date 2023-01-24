@@ -1,25 +1,16 @@
 import { AudioResource, createAudioResource } from "@discordjs/voice"
 import { Snowflake } from "discord.js"
 import ytdl, { getInfo } from "ytdl-core"
-import { YT_COOKIE } from "./config"
 import Logger from "./Logger"
 
-interface ISong {
-    title: string,
-    author: string,
-    url: string,
-    duration: number,
-    addedBy: Snowflake,
-}
-
-class Song implements ISong {
+class Song {
     public readonly title: string
     public readonly author: string
     public readonly url: string
     public readonly duration: number
     public readonly addedBy: Snowflake
 
-    public constructor({title, author, url, duration, addedBy}: ISong) {
+    public constructor({title, author, url, duration, addedBy}: {title: string, author: string, url: string, duration: number, addedBy: Snowflake}) {
         this.title = title,
         this.author = author,
         this.url = url,
@@ -27,20 +18,12 @@ class Song implements ISong {
         this.addedBy = addedBy
     }
 
-    private static get requestOptions() {
-        return YT_COOKIE !== undefined ? {
-            headers: {
-                cookie: YT_COOKIE
-            }
-        } : undefined
-    }
-
-    public async createAudioResource(): Promise<AudioResource> {
+    public async createAudioResource(ytCookie?: string): Promise<AudioResource> {
         const stream = ytdl(this.url, {
             highWaterMark: 1<<25,
             filter: 'audio',
             quality: 'highestaudio',
-            requestOptions: Song.requestOptions
+            requestOptions: Song.getRequestOptions(ytCookie)
         })
 
         stream.once('error', (e) => {
@@ -51,9 +34,9 @@ class Song implements ISong {
         return createAudioResource(stream)
     }
 
-    public static async from(url: string, addedBy: Snowflake) {
+    public static async from(url: string, addedBy: Snowflake, ytCookie?: string) {
         const { videoDetails } = await getInfo(url, {
-            requestOptions: Song.requestOptions
+            requestOptions: Song.getRequestOptions(ytCookie)
         })
 
         return new Song({
@@ -63,6 +46,14 @@ class Song implements ISong {
             duration: parseInt(videoDetails.lengthSeconds),
             addedBy,
         })
+    }
+
+    private static getRequestOptions(ytCookie?: string) {
+        return {
+            headers: {
+                cookie: ytCookie
+            }
+        }
     }
 }
 

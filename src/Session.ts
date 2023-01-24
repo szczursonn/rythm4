@@ -3,30 +3,22 @@ import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, entersState, VoiceCo
 import Song from "./Song";
 import { shuffleArray, wait } from "./utils";
 import Logger from "./Logger";
+import { AppConfig } from "./AppConfig";
 
 class Session {
-    private voiceConnection: VoiceConnection
-    private currentlyPlaying: Song | null
-    private queue: Song[]
-    private audioPlayer: AudioPlayer
-    private readyLock: boolean
-    private looping: boolean
-    private processingQueue: boolean
-    private guildId: Snowflake;
-    private disconnectTimeoutId: number | undefined
+    private audioPlayer: AudioPlayer = createAudioPlayer()
 
-    private static sessions: Map<Snowflake,Session> = new Map()
+    private queue: Song[] = []
+    private currentlyPlaying: Song | null = null
 
-    public constructor(voiceConnection: VoiceConnection, guildId: Snowflake) {
-        
-        this.voiceConnection = voiceConnection
-        this.audioPlayer = createAudioPlayer()
-        this.queue = []
-        this.currentlyPlaying = null
-        this.readyLock = false
-        this.looping = false
-        this.guildId = guildId
-        this.processingQueue = false
+    public isLooping: boolean = false
+    private isProcessingQueue: boolean = false
+
+    private readyLock: boolean = false
+
+    private _lastPlayedDate = new Date()
+
+    public constructor(private voiceConnection: VoiceConnection, public readonly guildId: Snowflake, private config: AppConfig) {
 
         // https://github.com/discordjs/voice/blob/main/examples/music-bot/src/music/subscription.ts#L32
         this.voiceConnection.on('stateChange', async (_, newState) => {
@@ -72,7 +64,6 @@ class Session {
 
         this.voiceConnection.subscribe(this.audioPlayer)
 
-        Session.sessions.set(guildId, this)
         Logger.info(`Session created on guild ${this.guildId}`)
     }
 
@@ -84,15 +75,7 @@ class Session {
         shuffleArray(this.queue)
     }
 
-    public isLooping() {
-        return this.looping
-    }
-
-    public setLooping(looping: boolean) {
-        this.looping = looping
-    }
-
-    public isPaused() {
+    public get isPaused() {
         return this.audioPlayer.state.status === AudioPlayerStatus.Paused
     }
 
@@ -104,8 +87,12 @@ class Session {
         this.audioPlayer.unpause()
     }
 
-    public getCurrentSong() {
+    public get currentSong() {
         return this.currentlyPlaying
+    }
+
+    public get lastPlayedDate() {
+        return this.currentlyPlaying ? new Date() : this._lastPlayedDate
     }
 
     public getQueue() {
@@ -125,53 +112,39 @@ class Session {
     public destroy() {
         this.destroy = ()=>{}   // Can only be called once
         this.queue = []
-        clearTimeout(this.disconnectTimeoutId)
         if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) this.voiceConnection.destroy()
         this.audioPlayer.stop(true)
-        Session.sessions.delete(this.guildId)
         Logger.info(`Session destroyed on guild ${this.guildId}`)
     }
 
     private async processQueue() {
 
-        if (this.processingQueue || this.audioPlayer.state.status !== AudioPlayerStatus.Idle) {
+        if (this.isProcessingQueue || this.audioPlayer.state.status !== AudioPlayerStatus.Idle) {
             return
         }
 
-        clearTimeout(this.disconnectTimeoutId)
-
-        if (this.queue.length === 0 && !this.looping && this.currentlyPlaying) {
+        if (this.queue.length === 0 && !this.isLooping && this.currentlyPlaying) {
             this.currentlyPlaying = null
-            this.disconnectTimeoutId = Number(setTimeout(()=>{
-                this.destroy()
-            }, 10*60*1000))
             return
         }
 
-        this.processingQueue = true
+        this.isProcessingQueue = true
         this.audioPlayer.unpause()
         
-        const nextSong: Song = this.looping ? this.currentlyPlaying! : this.queue.shift()!
+        const nextSong: Song = this.isLooping ? this.currentlyPlaying! : this.queue.shift()!
+        this._lastPlayedDate = new Date()
 
         try {
-            const audioResource = await nextSong.createAudioResource()
+            const audioResource = await nextSong.createAudioResource(this.config.ytCookie)
             this.audioPlayer.play(audioResource)
-            this.processingQueue = false
+            this.isProcessingQueue = false
             this.currentlyPlaying = nextSong
         } catch (err) {
             Logger.err(`Failed to create audioResource: `)
             Logger.err(err)
             this.processQueue()
-            this.processingQueue = false
+            this.isProcessingQueue = false
         }
-    }
-
-    public static getSession(guildId: Snowflake) {
-        return this.sessions.get(guildId)
-    }
-
-    public static getAllSessions() {
-        return Array.from(this.sessions.values())
     }
 }
 

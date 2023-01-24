@@ -1,7 +1,7 @@
 # Rythm 4
 ## Awesome Discord Music Bot
 Inspired by late [Rythm](https://rythm.fm/)  
-**Requires Node.js 16.9+**
+**Requires Node.js 18**
 
 ## Table of contents
 1. [Installation](#installation)

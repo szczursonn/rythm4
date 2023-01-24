@@ -1,15 +1,17 @@
-import { Embed, EmbedBuilder } from "discord.js"
-import { Command } from "."
-import { formatSongDuration } from "../utils"
+import { EmbedBuilder } from "discord.js";
+import { Command, CommandHandlerParams } from ".";
+import { formatSongDuration } from "../utils";
 
-const queue: Command = {
-    aliases: ['queue','q'],
-    description: 'Show the song queue',
-    emoji: '📄',
-    secret: false,
-    handler: async ({session, sender, replyCb}) => {
+export class QueueCommand extends Command {
+    aliases = ['queue', 'q']
+    description = 'Show the song queue'
+    icon = '📄'
+    hidden = false
+    options = undefined
+
+    public async handle( { session, sender, replyHandler }: CommandHandlerParams): Promise<void> {
         if (!session) {
-            await replyCb(':x: **I am not active on this server**')
+            await replyHandler.reply(':x: **I am not active on this server**')
             return
         }
         
@@ -19,7 +21,7 @@ const queue: Command = {
         .setTitle(`Queue for ${guildName}`)
         .setColor('#0189df')
         
-        const currentSong = session.getCurrentSong()
+        const currentSong = session.currentSong
     
         if (!currentSong) {
             embed.addFields({
@@ -29,7 +31,7 @@ const queue: Command = {
             })
         } else {
             embed.addFields({
-                name: `__Playing now__: ${currentSong.title}${session.isPaused() ? ' | PAUSED' : ''}`,
+                name: `__Playing now__: ${currentSong.title}${session.isPaused ? ' | PAUSED' : ''}`,
                 value: `Length: \`${formatSongDuration(currentSong.duration)}\` | Requested by <@${currentSong.addedBy}>`,
                 inline: false
             })
@@ -52,12 +54,11 @@ const queue: Command = {
                     })
                 }
             }
-            embed.setDescription(`Queue length: **${formatSongDuration(queueDuration)}**\nLooping: ${session.isLooping() ? ':green_circle:' : ':red_circle:'}`)
+            embed.setDescription(`Queue length: **${formatSongDuration(queueDuration)}**\nLooping: ${session.isLooping ? ':green_circle:' : ':red_circle:'}`)
         }
     
-        await replyCb(embed)
+        await replyHandler.reply(embed)
         return
     }
-}
 
-export default queue
+}
