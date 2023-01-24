@@ -4,7 +4,7 @@
   "description": "discord music bot",
   "main": "src/app.ts",
   "engines": {
-    "node": "16.x"
+    "node": "^18.x"
   },
   "scripts": {
     "start": "node build/app.js",
@@ -14,28 +14,25 @@
   "author": "szczursonn",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/opus": "^0.8.0",
-    "@discordjs/rest": "^1.1.0",
-    "@discordjs/voice": "^0.11.0",
-    "bufferutil": "^4.0.6",
+    "@discordjs/opus": "^0.9.0",
+    "@discordjs/rest": "^1.5.0",
+    "@discordjs/voice": "^0.14.0",
+    "bufferutil": "^4.0.7",
     "chalk": "^4.1.2",
-    "discord-api-types": "^0.37.9",
-    "discord.js": "^14.3.0",
-    "dotenv": "^16.0.2",
+    "discord-api-types": "^0.37.29",
+    "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3",
     "erlpack": "github:discord/erlpack",
-    "ffmpeg": "^0.0.4",
     "ffmpeg-static": "^5.1.0",
-    "libsodium-wrappers": "^0.7.10",
-    "opusscript": "^0.0.8",
     "tweetnacl": "^1.0.3",
-    "utf-8-validate": "^5.0.9",
-    "yt-search": "^2.10.3",
+    "utf-8-validate": "^6.0.1",
+    "yt-search": "^2.10.4",
     "ytdl-core": "^4.11.2",
-    "ytfps": "^1.0.6"
+    "ytfps": "^1.1.0"
   },
   "devDependencies": {
     "@types/yt-search": "^2.3.2",
-    "ts-node": "^10.2.1",
-    "typescript": "^4.8.3"
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
   }
 }
