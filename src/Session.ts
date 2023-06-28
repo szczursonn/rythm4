@@ -96,7 +96,8 @@ export default class Session {
     private async processQueue() {
         if (
             this.isProcessingQueue ||
-            this.audioPlayer.state.status !== AudioPlayerStatus.Idle
+            this.audioPlayer.state.status !== AudioPlayerStatus.Idle ||
+            this.isDestroyed
         ) {
             return;
         }
