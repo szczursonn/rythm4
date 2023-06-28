@@ -1,1 +1,0 @@
-export const niceCase = (str: string): string => str[0].toUpperCase() + str.toLowerCase().substr(1)

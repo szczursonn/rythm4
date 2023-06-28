@@ -1,151 +1,202 @@
-import { Snowflake } from "discord.js";
-import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, entersState, VoiceConnection, VoiceConnectionDisconnectReason, VoiceConnectionStatus } from "@discordjs/voice";
-import Song from "./Song";
-import { shuffleArray, wait } from "./utils";
-import Logger from "./Logger";
-import { AppConfig } from "./AppConfig";
+import {
+    AudioPlayer,
+    AudioPlayerStatus,
+    NoSubscriberBehavior,
+    VoiceConnection,
+    VoiceConnectionStatus,
+    createAudioPlayer,
+} from '@discordjs/voice';
+import logger from './logger';
+import { initializeVoiceConnection } from './initializeVoiceConnection';
+import { Snowflake, VoiceChannel } from 'discord.js';
+import { Track } from './Track';
 
-class Session {
-    private audioPlayer: AudioPlayer = createAudioPlayer()
+//const INACTIVITY_TIMEOUT_MS = 300_000; // 5min
+const INACTIVITY_TIMEOUT_MS = 10_000; // 10s
 
-    private queue: Song[] = []
-    private currentlyPlaying: Song | null = null
+export class SessionInitializationError extends Error {
+    constructor(
+        public readonly type:
+            | 'missing_permissions_connect'
+            | 'missing_permissions_speak'
+    ) {
+        super();
+    }
+}
+export default class Session {
+    public readonly guildId: Snowflake;
+    private readonly voiceConnection: VoiceConnection;
+    private readonly audioPlayer: AudioPlayer;
+    public looping: boolean = false;
+    private isProcessingQueue: boolean = false;
+    private _queue: Track[] = [];
+    private _currentTrack: Track | null = null;
+    private inactivityTimeout: NodeJS.Timeout | null = null;
 
-    public isLooping: boolean = false
-    private isProcessingQueue: boolean = false
+    public constructor(
+        voiceChannel: VoiceChannel,
+        private readonly onDestroy: () => void
+    ) {
+        const botPermissions = voiceChannel.permissionsFor(
+            voiceChannel.guild.members.me!
+        );
+        if (!botPermissions.has('Connect')) {
+            logger.debug(
+                `Session start failed: missing connect permission (${voiceChannel.name}@${voiceChannel.guild.name})`
+            );
+            throw new SessionInitializationError('missing_permissions_connect');
+        }
 
-    private readyLock: boolean = false
+        if (!botPermissions.has('Speak')) {
+            logger.debug(
+                `Session start failed: missing speak permission (${voiceChannel.name}@${voiceChannel.guild.name})`
+            );
+            throw new SessionInitializationError('missing_permissions_speak');
+        }
 
-    private _lastPlayedDate = new Date()
+        this.voiceConnection = initializeVoiceConnection(
+            voiceChannel,
+            this.destroy.bind(this)
+        );
+        this.guildId = voiceChannel.guildId;
 
-    public constructor(private voiceConnection: VoiceConnection, public readonly guildId: Snowflake, private config: AppConfig) {
-
-        // https://github.com/discordjs/voice/blob/main/examples/music-bot/src/music/subscription.ts#L32
-        this.voiceConnection.on('stateChange', async (_, newState) => {
-            if (newState.status === VoiceConnectionStatus.Disconnected) {
-                if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
-                    // Wait 5 seconds to determine if client was kicked from VC or is switching VC
-                    try {
-                        await entersState(this.voiceConnection, VoiceConnectionStatus.Connecting, 5000)
-                    } catch (e) {
-                        this.voiceConnection.destroy()
-                    }
-                } else if (this.voiceConnection.rejoinAttempts < 5) {
-                    await wait((this.voiceConnection.rejoinAttempts + 1) * 5000)
-                    this.voiceConnection.rejoin()
-                } else {
-                    this.voiceConnection.destroy()
-                }
-            } else if (newState.status === VoiceConnectionStatus.Destroyed) {
-                this.destroy()
-            } else if (!this.readyLock && (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)) {
-                this.readyLock = true
-                try {
-                    await entersState(this.voiceConnection, VoiceConnectionStatus.Ready, 20000)
-                } catch (e) {
-                    if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) this.voiceConnection.destroy()
-                } finally {
-                    this.readyLock = false
-                }
-            }
-        })
+        this.audioPlayer = createAudioPlayer({
+            behaviors: {
+                noSubscriber: NoSubscriberBehavior.Play,
+            },
+        });
+        this.voiceConnection.subscribe(this.audioPlayer);
 
         this.audioPlayer.on('stateChange', (oldState, newState) => {
-            if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
-                // audio resource finished playing
-                this.processQueue()
+            logger.debug(
+                `AudioPlayerStateChange ${oldState.status} -> ${newState.status} on ${this.guildId} (${voiceChannel.guild.name})`
+            );
+            if (
+                newState.status === AudioPlayerStatus.Idle &&
+                oldState.status !== AudioPlayerStatus.Idle
+            ) {
+                this.processQueue();
             }
-        })
+        });
 
         this.audioPlayer.on('error', (err) => {
-            Logger.err(`audioPlayer error on guild ${this.guildId}: `)
-            Logger.err(err)
-        })
+            logger.error(
+                `AudioPlayer error on ${this.guildId} (${voiceChannel.guild.name})`,
+                err
+            );
+        });
 
-        this.voiceConnection.subscribe(this.audioPlayer)
+        this.processQueue();
 
-        Logger.info(`Session created on guild ${this.guildId}`)
-    }
-
-    public skipSong() {
-        this.audioPlayer.stop() // will automatically play next song
-    }
-
-    public shuffleQueue() {
-        shuffleArray(this.queue)
-    }
-
-    public get isPaused() {
-        return this.audioPlayer.state.status === AudioPlayerStatus.Paused
-    }
-
-    public pause() {
-        this.audioPlayer.pause(true)
-    }
-
-    public unpause() {
-        this.audioPlayer.unpause()
-    }
-
-    public get currentSong() {
-        return this.currentlyPlaying
-    }
-
-    public get lastPlayedDate() {
-        return this.currentlyPlaying ? new Date() : this._lastPlayedDate
-    }
-
-    public getQueue() {
-        return [...this.queue]  // shallow copy
-    }
-
-    public clearQueue() {
-        this.queue = []
-    }
-
-    public enqueue(song: Song) {
-        this.queue.push(song)
-        this.processQueue()
-        Logger.debug(`Enqueued song "${song.title}" on guild ${this.guildId}`)
-    }
-
-    public destroy() {
-        this.destroy = ()=>{}   // Can only be called once
-        this.queue = []
-        if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) this.voiceConnection.destroy()
-        this.audioPlayer.stop(true)
-        Logger.info(`Session destroyed on guild ${this.guildId}`)
+        logger.info(
+            `Session created (${voiceChannel.name}@${voiceChannel.guild.name})`
+        );
     }
 
     private async processQueue() {
-
-        if (this.isProcessingQueue || this.audioPlayer.state.status !== AudioPlayerStatus.Idle) {
-            return
+        if (
+            this.isProcessingQueue ||
+            this.audioPlayer.state.status !== AudioPlayerStatus.Idle
+        ) {
+            return;
         }
 
-        if (this.queue.length === 0 && !this.isLooping && this.currentlyPlaying) {
-            this.currentlyPlaying = null
-            return
+        const nextTrack: Track | null = this.looping
+            ? this._currentTrack
+            : this._queue.shift() ?? null;
+
+        if (!nextTrack) {
+            this._currentTrack = null;
+            this.inactivityTimeout = setTimeout(() => {
+                this.destroy();
+            }, INACTIVITY_TIMEOUT_MS);
+            logger.debug(`Started inactivity timeout on ${this.guildId}`);
+            return;
         }
 
-        this.isProcessingQueue = true
-        this.audioPlayer.unpause()
-        
-        const nextSong: Song = this.isLooping ? this.currentlyPlaying! : this.queue.shift()!
-        this._lastPlayedDate = new Date()
+        this.isProcessingQueue = true;
+        logger.debug(`Processing queue on ${this.guildId}`);
+
+        if (this.inactivityTimeout) {
+            clearTimeout(this.inactivityTimeout);
+            this.inactivityTimeout = null;
+            logger.debug(`Stopped inactivity timeout on ${this.guildId}`);
+        }
 
         try {
-            const audioResource = await nextSong.createAudioResource(this.config.ytCookie)
-            this.audioPlayer.play(audioResource)
-            this.isProcessingQueue = false
-            this.currentlyPlaying = nextSong
+            const audioResource = await nextTrack.createAudioResource();
+            this.audioPlayer.unpause();
+            this.audioPlayer.play(audioResource);
+            this._currentTrack = nextTrack;
+            logger.debug(
+                `Started playback of ${nextTrack.title} (${this.guildId})`
+            );
         } catch (err) {
-            Logger.err(`Failed to create audioResource: `)
-            Logger.err(err)
-            this.processQueue()
-            this.isProcessingQueue = false
+            logger.error(
+                `Failed to create AudioResource (${nextTrack.title}, guildId: ${this.guildId}):`,
+                err
+            );
+            this.processQueue();
+        } finally {
+            this.isProcessingQueue = false;
         }
     }
-}
 
-export default Session
+    public get queue(): Readonly<typeof this._queue> {
+        return this._queue;
+    }
+
+    public get currentTrack(): Readonly<typeof this._currentTrack> {
+        return this._currentTrack;
+    }
+
+    public clearQueue() {
+        this._queue = [];
+    }
+
+    public enqueue(track: Track) {
+        this._queue.push(track);
+        logger.debug(`Enqueued "${track.title}" on ${this.guildId}`);
+        this.processQueue();
+    }
+
+    public skipSong() {
+        this.looping = false;
+        this.audioPlayer.stop();
+    }
+
+    public get paused() {
+        return this.audioPlayer.state.status === AudioPlayerStatus.Paused;
+    }
+    public set paused(value) {
+        if (value) {
+            this.audioPlayer.pause(true);
+        } else {
+            this.audioPlayer.unpause();
+        }
+    }
+
+    private isDestroyed = false;
+    public destroy() {
+        if (this.isDestroyed) {
+            return;
+        }
+        this.isDestroyed = true;
+
+        if (
+            this.voiceConnection.state.status !==
+            VoiceConnectionStatus.Destroyed
+        ) {
+            this.voiceConnection.destroy();
+        }
+
+        if (this.inactivityTimeout) {
+            clearTimeout(this.inactivityTimeout);
+        }
+        this._queue = [];
+        this.audioPlayer.stop(true);
+        this.onDestroy();
+
+        logger.info(`Session destroyed on guild ${this.guildId}`);
+    }
+}

@@ -1,51 +1,41 @@
-import chalk from 'chalk'
+import chalk from 'chalk';
+type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'FATAL' | 'DEBUG';
+type Logger = Record<Lowercase<LogLevel>, (...messages: Array<any>) => void>;
 
-type LogLevel = 'INFO' | 'ERROR' | 'FATAL' | 'DEBUG'
+const LOG_LEVEL_LABELS: Readonly<Record<LogLevel, string>> = {
+    INFO: chalk.greenBright('INFO'),
+    WARN: chalk.yellow('WARN'),
+    ERROR: chalk.redBright('ERROR'),
+    FATAL: chalk.red('FATAL'),
+    DEBUG: chalk.magenta('DEBUG'),
+};
 
-class Logger {
-    private constructor() {}
+const log = (logLevel: LogLevel, messages: Array<any>): void => {
+    console.log(
+        chalk.grey(new Date().toISOString()),
+        LOG_LEVEL_LABELS[logLevel],
+        '---',
+        ...messages
+    );
+};
 
-    private static colorLabel(label: LogLevel): string {
-        switch (label) {
-            case 'INFO':
-                return chalk.bgGreen(label)
-            case 'ERROR':
-                return chalk.bgRedBright(label)
-            case 'FATAL':
-                return chalk.bgRed(label)
-            case 'DEBUG':
-                return chalk.bgMagenta(label)
-        }
+const logger = (Object.keys(LOG_LEVEL_LABELS) as Array<LogLevel>).reduce(
+    (current, logLevel) => {
+        current[logLevel.toLowerCase() as Lowercase<LogLevel>] = (
+            ...messages
+        ) => log(logLevel, messages);
+        return current;
+    },
+    {} as Logger
+);
+
+const debugLogFn = logger.debug;
+
+logger.debug = (...args) => {
+    if (require('./config').environment === 'development') {
+        return;
     }
+    debugLogFn(...args);
+};
 
-    private static formatDate(timestamp: string) {
-        return chalk.bgWhite.black(timestamp)
-    }
-
-    private static _log(msg: any, label: LogLevel) {
-        const timestamp = `[${new Date().toISOString()}]`
-
-        const _msg = (msg instanceof Error) ? `${msg.name}: ${msg.stack}` : `${msg}`
-
-        console.log(`${this.formatDate(timestamp)}${this.colorLabel(label)} ${_msg}`)
-    }
-
-    public static info(msg: any) {
-        Logger._log(msg, 'INFO')
-    }
-
-    public static err(msg: any) {
-        Logger._log(msg, 'ERROR')
-    }
-
-    public static fatal(msg: any) {
-        Logger._log(msg, 'FATAL')
-    }
-
-    public static debug(msg: any) {
-        Logger._log(msg, 'DEBUG')
-    }
-
-}
-
-export default Logger
+export default logger as Readonly<Logger>;

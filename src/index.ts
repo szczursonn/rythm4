@@ -1,10 +1,8 @@
-import { AppConfig } from "./AppConfig";
-import { Bot } from "./Bot";
-import Logger from "./Logger";
+import { MusicBot } from './MusicBot';
+import config from './config';
+import logger from './logger';
 
-Logger.info(`Starting app...`)
-const appConfig = new AppConfig()
-const bot = new Bot(appConfig)
-
-process.on('SIGTERM', bot.gracefulExit.bind(bot))
-process.on('SIGINT', bot.gracefulExit.bind(bot))
+logger.info(
+    `Starting app, enviroment: ${config.environment}, prefix: ${config.prefix}`
+);
+new MusicBot();
