@@ -43,7 +43,8 @@ Create .env file and set following enviroment variables:
 
 ### - $play / $p <url/searchphrase>
 
-Adds a song or a playlist to the queue, and joins the channel if the bot isn't in one already
+Adds a song or a playlist to the queue, and joins the channel if the bot isn't in one already  
+Searches for youtube video if spotify url is provided
 
 ### - $disconnect / $dc / $fuckoff
 

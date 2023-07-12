@@ -7,6 +7,7 @@ import ytsearch from 'yt-search';
 import { createCreateYTDLAudioResource } from '../Track';
 import { SessionInitializationError } from '../Session';
 import { ytdlRequestOptions } from '../config';
+const spotifyApi = require('spotify-url-info')(fetch);
 
 const play: Command = {
     name: 'Play',
@@ -71,6 +72,38 @@ const play: Command = {
         }
 
         try {
+            if (query.includes('spotify')) {
+                // might be a spotify url
+                const trackPreview = await spotifyApi.getPreview(query);
+
+                const video = (
+                    await ytsearch(
+                        `${trackPreview.artist} ${trackPreview.title}`
+                    )
+                ).videos?.[0];
+
+                if (video) {
+                    session.enqueue({
+                        title: video.title,
+                        author: video.author.name,
+                        url: video.url,
+                        durationSeconds: video.duration.seconds,
+                        addedBy: sender.id,
+                        createAudioResource: createCreateYTDLAudioResource(
+                            video.url
+                        ),
+                    });
+                    await reply(
+                        `:notes: **Added \`${video.title}\` to the queue!**`
+                    );
+                    return;
+                }
+
+                throw new Error(
+                    'Failed to find youtube video from spotify url'
+                );
+            }
+
             if (query.includes('/playlist')) {
                 // might be a playlist link
                 const youtubePlaylist = await ytfps(query);
@@ -90,7 +123,7 @@ const play: Command = {
                 const unaccessibleVideosCount =
                     youtubePlaylist.video_count - youtubePlaylist.videos.length;
 
-                reply(
+                await reply(
                     `:notes: **Added ${
                         youtubePlaylist.videos.length
                     } videos to the queue!${
@@ -117,7 +150,7 @@ const play: Command = {
                         videoInfo.videoDetails.video_url
                     ),
                 });
-                reply(
+                await reply(
                     `:notes: **Added \`${videoInfo.videoDetails.title}\` to the queue!**`
                 );
                 return;
@@ -136,7 +169,9 @@ const play: Command = {
                             video.url
                         ),
                     });
-                    reply(`:notes: **Added \`${video.title}\` to the queue!**`);
+                    await reply(
+                        `:notes: **Added \`${video.title}\` to the queue!**`
+                    );
                     return;
                 }
 
