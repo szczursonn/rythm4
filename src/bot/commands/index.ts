@@ -129,7 +129,11 @@ export class CommandHandlerMessageContext extends CommandHandlerContextBase {
         return this.message.member?.voice.channel ?? null;
     }
 
-    protected replyInitial(reply: CommandHandlerContextReply) {
+    protected async replyInitial(reply: CommandHandlerContextReply) {
+        if (reply.defer) {
+            return null;
+        }
+
         return this.message.reply({
             content: reply.text,
             embeds: reply.embeds,

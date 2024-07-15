@@ -44,7 +44,7 @@ const play: Command = {
             defer: true,
         });
 
-        const session = ctx.bot.getOrCreateSession(ctx.userVoiceChannel);
+        const session = ctx.bot.getOrCreateSession(ctx.userVoiceChannel, ctx.channel);
 
         let tracksToAdd: Track[];
 
@@ -128,7 +128,7 @@ const play: Command = {
                             author: soundcloudTrack.user?.username ?? 'Unknown',
                             authorUrl: soundcloudTrack.user?.permalink_url,
                             url: soundcloudTrack.permalink_url ?? query,
-                            durationSeconds: soundcloudTrack.full_duration ?? soundcloudTrack.duration ?? 0,
+                            durationSeconds: (soundcloudTrack.full_duration ?? soundcloudTrack.duration ?? 0) / 1000,
                             addedBy: ctx.user.id,
                             type: 'soundcloud',
                         },

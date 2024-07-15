@@ -3,6 +3,7 @@ import {
     ChannelType,
     Client,
     CommandInteraction,
+    GuildTextBasedChannel,
     Interaction,
     Message,
     Routes,
@@ -77,13 +78,13 @@ export class MusicBot {
         return this.sessions.get(guildId);
     }
 
-    public getOrCreateSession(voiceChannel: VoiceChannel) {
+    public getOrCreateSession(voiceChannel: VoiceChannel, textChannel: GuildTextBasedChannel) {
         const existingSession = this.getSession(voiceChannel.guildId);
         if (existingSession) {
             return existingSession;
         }
 
-        const newSession = new Session(this, voiceChannel);
+        const newSession = new Session(this, voiceChannel, textChannel);
         this.sessions.set(voiceChannel.guildId, newSession);
 
         return newSession;

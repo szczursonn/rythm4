@@ -10,15 +10,15 @@ import {
     joinVoiceChannel,
 } from '@discordjs/voice';
 import logger from '../logger.js';
-import { Snowflake, VoiceChannel } from 'discord.js';
+import { GuildTextBasedChannel, Snowflake, VoiceChannel } from 'discord.js';
 import { MusicBot } from './MusicBot.js';
 import { wait } from '../utils.js';
 import ytdl from '@distube/ytdl-core';
 import scdl from 'soundcloud-downloader';
 import internal from 'stream';
+import { ICONS } from './commands/index.js';
 
-//const INACTIVITY_TIMEOUT_MS = 300_000; // 5min
-const INACTIVITY_TIMEOUT_MS = 10_000; // 10s for testing
+const INACTIVITY_TIMEOUT_MS = 120_000; // 2min
 
 const MAX_REJOIN_ATTEMPTS = 3;
 const CHANNEL_SWITCH_DETECTION_TIMEOUT_MS = 5_000;
@@ -29,6 +29,7 @@ const CLOSE_CODE_DISCONNECTED = 4014;
 export default class Session {
     public readonly bot;
     public readonly guildId;
+    public readonly notificationsChannel;
     public looping: boolean = false;
     public currentTrack: Track | null = null;
     public queue: Track[] = [];
@@ -39,9 +40,10 @@ export default class Session {
     private isProcessingQueue = false;
     private inactivityTimeout: NodeJS.Timeout | null = null;
 
-    public constructor(bot: MusicBot, voiceChannel: VoiceChannel) {
+    public constructor(bot: MusicBot, voiceChannel: VoiceChannel, notificationsChannel: GuildTextBasedChannel) {
         this.bot = bot;
         this.guildId = voiceChannel.guildId;
+        this.notificationsChannel = notificationsChannel;
 
         this.voiceConnection = joinVoiceChannel({
             guildId: voiceChannel.guildId,
@@ -115,6 +117,7 @@ export default class Session {
             }
         });
         this.audioPlayer.on('error', (err) => {
+            this.sendNotificationsMessage(`${ICONS.APP_ERROR} **There was an unexpected error during playback.**`);
             logger.error(`[${this.guildId}] audioPlayer.error`, err);
         });
 
@@ -154,6 +157,16 @@ export default class Session {
     public destroy() {
         if (!this.destroyed) {
             this.voiceConnection.destroy();
+        }
+    }
+
+    private async sendNotificationsMessage(message: string) {
+        try {
+            await this.notificationsChannel.send({
+                content: message,
+            });
+        } catch (err) {
+            logger.error(`[${this.guildId}] Failed to send notifcation message:`, err);
         }
     }
 
