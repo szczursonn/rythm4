@@ -1,38 +1,35 @@
 import { EmbedBuilder } from 'discord.js';
-import { Command } from '.';
-import config from '../config';
-import { formatTime } from '../utils';
+import { uptime } from 'node:process';
+import { Command } from './index.js';
+import { formatTime } from '../../utils.js';
 
 const status: Command = {
     name: 'Status',
     aliases: ['status'],
-    description: 'Bot status',
+    description: 'Show bot status',
     icon: 'ℹ',
     visibility: 'public',
     interactionArguments: [],
-    async handler({ bot, reply }) {
-        const embed = new EmbedBuilder()
+    async handler(ctx) {
+        const embedBuilder = new EmbedBuilder()
             .setTitle(`Status`)
             .setColor('#eb0c31')
             .addFields(
                 {
                     name: 'Uptime',
-                    value: `\`${formatTime(Math.floor(process.uptime()))}\``,
+                    value: `\`${formatTime(Math.floor(uptime()))}\``,
                     inline: false,
                 },
                 {
                     name: 'Active sessions',
-                    value: `\`${bot.sessions.count}\``,
-                    inline: false,
-                },
-                {
-                    name: 'Enviroment',
-                    value: `\`${config.environment}\``,
+                    value: `\`${ctx.bot.sessionCount}\``,
                     inline: false,
                 }
             );
 
-        await reply(embed);
+        return ctx.reply({
+            embeds: [embedBuilder.data],
+        });
     },
 };
 

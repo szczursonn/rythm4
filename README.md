@@ -10,7 +10,6 @@ Inspired by late [Rythm](https://rythm.fm/)
 1. [Installation](#installation)
 2. [Configuration](#configuration)
 3. [Commands](#commands)
-4. [Enable age restricted videos](#enable-age-restricted-videos)
 
 ## Installation
 
@@ -33,18 +32,16 @@ npm run dev
 
 Create .env file and set following enviroment variables:
 
--   **DISCORD_TOKEN**: Bot token from https://discord.com/developers/applications
--   **PREFIX** (optional): Prefix for commands, defaults to `$`
--   **YT_COOKIE** (optional): For accessing age-restricted videos, see [Enable age restricted videos](#enable-age-restricted-videos)
--   **YT_TOKEN** (optional): For accessing age-restricted videos, see [Enable age restricted videos](#enable-age-restricted-videos)
--   **NODE_ENV** (optional): Node enviroment, should be set to `production` in production, defaults to `development`
+-   **RYTHM4_DISCORD_TOKEN**: Bot token from https://discord.com/developers/applications
+-   **RYTHM4_PREFIX** (optional): Prefix for commands, defaults to `$`
+-   **RYTHM4_DEBUG** (optional): If not empty, enables debug logging
 
 ## Commands
 
 ### - $play / $p <url/searchphrase>
 
 Adds a song or a playlist to the queue, and joins the channel if the bot isn't in one already  
-Searches for youtube video if spotify url is provided
+Supported formats: youtube search query, youtube video url, youtube playlist url, soundcloud song url
 
 ### - $disconnect / $dc / $fuckoff
 
@@ -84,20 +81,8 @@ Show some info about the bot: amount of active sessions, uptime [hh:mm:ss]
 
 ### - $slash
 
-Register slash commands on the server (requires admin permissions)
+Register slash commands on the server
 
 ### - $unslash
 
-Unregisters slash commands on the server (requires admin permissions)
-
-## Enable age restricted videos
-
-To access age-restricted video, you will have to set YT_COOKIE and YT_TOKEN enviroment variables
-
-1. Open up Chrome Dev Tools
-2. Go to the network tab
-3. Go to any video page on Youtube while logged in
-4. Click on a request to /playback
-5. Go to Headers
-6. Find the "cookie" header and copy it
-7. Find the "X-Youtube-Identity-Token" header and copy it
+Unregisters slash commands on the server

@@ -1,41 +1,38 @@
 import chalk from 'chalk';
-type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'FATAL' | 'DEBUG';
-type Logger = Record<Lowercase<LogLevel>, (...messages: Array<any>) => void>;
+import config from './config.js';
 
-const LOG_LEVEL_LABELS: Readonly<Record<LogLevel, string>> = {
+const FORMATTED_LOG_LEVEL = {
     INFO: chalk.greenBright('INFO'),
     WARN: chalk.yellow('WARN'),
     ERROR: chalk.redBright('ERROR'),
-    FATAL: chalk.red('FATAL'),
     DEBUG: chalk.magenta('DEBUG'),
 };
 
-const log = (logLevel: LogLevel, messages: Array<any>): void => {
-    console.log(
-        chalk.grey(new Date().toISOString()),
-        LOG_LEVEL_LABELS[logLevel],
-        '---',
-        ...messages
-    );
-};
-
-const logger = (Object.keys(LOG_LEVEL_LABELS) as Array<LogLevel>).reduce(
-    (current, logLevel) => {
-        current[logLevel.toLowerCase() as Lowercase<LogLevel>] = (
-            ...messages
-        ) => log(logLevel, messages);
-        return current;
-    },
-    {} as Logger
-);
-
-const debugLogFn = logger.debug;
-
-logger.debug = (...args) => {
-    if (require('./config').environment === 'development') {
-        return;
+class Logger {
+    public info(...args: unknown[]) {
+        this.log(FORMATTED_LOG_LEVEL.INFO, args);
     }
-    debugLogFn(...args);
-};
 
-export default logger as Readonly<Logger>;
+    public warn(...args: unknown[]) {
+        this.log(FORMATTED_LOG_LEVEL.WARN, args);
+    }
+
+    public error(...args: unknown[]) {
+        this.log(FORMATTED_LOG_LEVEL.ERROR, args);
+    }
+
+    public debug(...args: unknown[]) {
+        if (config.debug) {
+            this.log(FORMATTED_LOG_LEVEL.DEBUG, args);
+        }
+    }
+
+    private log(formattedLogLevel: string, args: unknown[]) {
+        console.log(`${new Date().toISOString()}\t${formattedLogLevel}\t`, ...args);
+    }
+}
+
+const logger = new Logger();
+
+// TODO: not as global logger
+export default logger;

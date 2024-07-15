@@ -3,8 +3,7 @@ export const formatTime = (seconds?: number): string => {
         return '';
     }
 
-    const addZero = (n: number) =>
-        n.toString().length === 1 ? `0${n}` : `${n}`;
+    const addZero = (n: number) => (n.toString().length === 1 ? `0${n}` : `${n}`);
 
     let minutes = Math.floor(seconds / 60);
     seconds = seconds % 60;
@@ -15,3 +14,5 @@ export const formatTime = (seconds?: number): string => {
 
     return `${addZero(hours)}:${addZero(minutes)}:${addZero(seconds)}`;
 };
+
+export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
