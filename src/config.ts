@@ -15,6 +15,7 @@ const config = {
     discordToken,
     prefix: getEnvVariable('PREFIX') || DEFAULT_PREFIX,
     debug: !!getEnvVariable('DEBUG'),
+    adminId: getEnvVariable('ADMIN_ID') ?? null,
 } as const;
 
 export default config;

@@ -13,7 +13,7 @@ if (config.debug) {
     logger.debug('Debug mode enabled');
 }
 
-const bot = new MusicBot({ prefix: config.prefix });
+const bot = new MusicBot({ prefix: config.prefix, adminId: config.adminId });
 
 process.once('SIGINT', () => {
     logger.info('Shutting down...');
