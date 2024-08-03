@@ -130,7 +130,7 @@ export class CommandHandlerMessageContext extends CommandHandlerContextBase {
     }
 
     protected async replyInitial(reply: CommandHandlerContextReply) {
-        if (reply.defer) {
+        if (reply.defer || !this.hasMessagePermissionsForReply) {
             return null;
         }
 

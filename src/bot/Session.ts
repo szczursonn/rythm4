@@ -118,6 +118,12 @@ export default class Session {
         });
         this.audioPlayer.on('error', (err) => {
             this.sendNotificationsMessage(`${ICONS.APP_ERROR} **There was an unexpected error during playback.**`);
+            try {
+                this.bot.sendMessageToAdmin(`[${this.guildId}] playback error: ${JSON.stringify(err)}`);
+            } catch (_) {
+                this.bot.sendMessageToAdmin(`[${this.guildId}] playback error non-json: ${err}`);
+            }
+
             logger.error(`[${this.guildId}] audioPlayer.error`, err);
         });
 

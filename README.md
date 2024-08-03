@@ -3,7 +3,7 @@
 ## Awesome Discord Music Bot
 
 Inspired by late [Rythm](https://rythm.fm/)  
-**Requires Node.js 18**
+**Requires Node.js 20+**
 
 ## Table of contents
 

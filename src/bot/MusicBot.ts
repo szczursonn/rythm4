@@ -28,12 +28,14 @@ const PRESENCE_REFRESH_INTERVAL_MS = 12 * 60 * 60 * 1000; // 12h
 export class MusicBot {
     public readonly prefix;
     public readonly ytdlAgent;
+    public readonly adminId;
 
     private client;
     private sessions;
 
-    public constructor({ prefix }: { prefix: string }) {
+    public constructor({ prefix, adminId }: { prefix: string; adminId: Snowflake | null }) {
         this.prefix = prefix;
+        this.adminId = adminId;
         this.ytdlAgent = ytdl.createAgent();
 
         this.client = new Client({
@@ -115,6 +117,19 @@ export class MusicBot {
         return this.client.rest.put(Routes.applicationGuildCommands(this.client.user!.id, guildId), {
             body: [],
         });
+    }
+
+    public async sendMessageToAdmin(msg: string) {
+        if (!this.adminId) {
+            return;
+        }
+
+        try {
+            const dmChannel = await this.client.users.createDM(this.adminId);
+            await dmChannel.send(msg);
+        } catch (err) {
+            logger.error('Failed to send admin message:', err);
+        }
     }
 
     private handleMessage(message: Message) {
