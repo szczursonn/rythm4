@@ -5,6 +5,7 @@ import ytpl from '@distube/ytpl';
 import scdl from 'soundcloud-downloader';
 import { CommandHandlerMessageContext, ICONS, type Command } from './index.js';
 import { Track } from '../Session.js';
+import { getSpotifyTrackInfoByUrl, isSpotifyTrackURL } from '../../spotify.js';
 
 const play: Command = {
     name: 'Play',
@@ -144,6 +145,38 @@ const play: Command = {
 
                     throw err;
                 }
+            } else if (isSpotifyTrackURL(query)) {
+                const spotifyInfo = await getSpotifyTrackInfoByUrl(query);
+
+                if (!spotifyInfo) {
+                    return ctx.reply({
+                        text: `${ICONS.USER_ERROR} **There is not such spotify track**`,
+                    });
+                }
+
+                ctx.reply({
+                    text: ':beers: **Searching for a matching youtube video...**',
+                });
+                const searchResult = await ytsearch(`${spotifyInfo.author} ${spotifyInfo.title} audio`);
+                const video = searchResult.videos[0];
+
+                if (!video) {
+                    return ctx.reply({
+                        text: `${ICONS.USER_ERROR} **Could not find a youtube video for the spotify track**`,
+                    });
+                }
+
+                tracksToAdd = [
+                    {
+                        title: video.title,
+                        author: video.author.name,
+                        authorUrl: video.author.url,
+                        url: video.url,
+                        durationSeconds: video.duration.seconds,
+                        addedBy: ctx.user.id,
+                        type: 'youtube',
+                    },
+                ];
             } else {
                 return ctx.reply({
                     text: `${ICONS.USER_ERROR} **Invalid URL**`,
