@@ -119,12 +119,13 @@ export default class Session {
         this.audioPlayer.on('error', (err) => {
             this.sendNotificationsMessage(`${ICONS.APP_ERROR} **There was an unexpected error during playback.**`);
 
-            const adminMessageStamp = `[${this.guildId}] [${this.currentTrack?.url}]`;
-            try {
-                this.bot.sendMessageToAdmin(`${adminMessageStamp} playback error: ${JSON.stringify(err)}`);
-            } catch (_) {
-                this.bot.sendMessageToAdmin(`${adminMessageStamp} non-serializable playback error: ${err}`);
-            }
+            this.bot.sendMessageToAdmin(
+                `${[voiceChannel.client.guilds.cache.get(this.guildId)?.name, this.guildId]
+                    .filter(Boolean)
+                    .join(' - ')} (${this.currentTrack?.url}) playback error\n${err.name}\n${err.message}\n${
+                    err.cause
+                }\n${err.stack}\n${err.resource.playbackDuration}`
+            );
 
             logger.error(`[${this.guildId}] audioPlayer.error`, err);
         });
