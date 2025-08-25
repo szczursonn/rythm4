@@ -2,6 +2,7 @@ export const formatTime = (seconds?: number): string => {
     if (seconds === undefined) {
         return '';
     }
+    seconds = Math.round(seconds);
 
     const addZero = (n: number) => (n.toString().length === 1 ? `0${n}` : `${n}`);
 
@@ -15,4 +16,10 @@ export const formatTime = (seconds?: number): string => {
     return `${addZero(hours)}:${addZero(minutes)}:${addZero(seconds)}`;
 };
 
-export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+export const safeParseURL = (str: string) => {
+    try {
+        return URL.parse(str);
+    } catch (_) {
+        return null;
+    }
+};

@@ -2,14 +2,8 @@
 
 ## Awesome Discord Music Bot
 
-Inspired by late [Rythm](https://rythm.fm/)  
-**Requires Node.js 20+**
-
-## Table of contents
-
-1. [Installation](#installation)
-2. [Configuration](#configuration)
-3. [Commands](#commands)
+Inspired by [Rythm](https://rythm.fm/)  
+**Requires at least Node.js 23.6.0**
 
 ## Installation
 
@@ -19,70 +13,24 @@ git clone https://github.com/szczursonn/rythm4
 cd rythm4
 
 # Install dependencies
-npm i
+npm install
 
-# Create the .env file, or set the enviroment variables yourself
-nano .env
+# Create the config file and set values
+nano config.toml
 
-# Start the bot
-npm run dev
+# Start the bot ("bun start" prevents graceful shutdown)
+npm start
 ```
 
 ## Configuration
 
-Create .env file and set following enviroment variables:
+Create config.toml file and set following values:
 
--   **RYTHM4_DISCORD_TOKEN**: Bot token from https://discord.com/developers/applications
--   **RYTHM4_PREFIX** (optional): Prefix for commands, defaults to `$`
--   **RYTHM4_DEBUG** (optional): If not empty, enables debug logging
-
-## Commands
-
-### - $play / $p <url/searchphrase>
-
-Adds a song or a playlist to the queue, and joins the channel if the bot isn't in one already  
-Supported formats: youtube search query, youtube video url, youtube playlist url, soundcloud song url
-
-### - $disconnect / $dc / $fuckoff
-
-Disconnects the bot from voice channel
-
-### - $queue / $q
-
-Displays the currently playing song, the song queue, whether the player is paused and whether looping is on
-
-### - $skip / $fs / $s
-
-Skips the current song, also disables looping if it's on
-
-### - $loop
-
-Toggles looping of current song
-
-### - $pause
-
-Pauses playback
-
-### - $unpause / $resume
-
-Resumes playback
-
-### - $help
-
-Shows the list of the commands
-
-### - $clear
-
-Clears the queue (deletes all items)
-
-### - $status
-
-Show some info about the bot: amount of active sessions, uptime [hh:mm:ss]
-
-### - $slash
-
-Register slash commands on the server
-
-### - $unslash
-
-Unregisters slash commands on the server
+-   **discord_token**: Bot token from https://discord.com/developers/applications
+-   **command_prefix** (optional): Prefix for commands, defaults to `!`
+-   **debug** (optional): If true, enables debug logging
+-   **youtube_cookie** (optional): youtube cookie for accessing age-restricted videos and improved stability
+-   **activity_update_interval** (optional): how often to rotate activities
+-   **\[\[activities\]\]**: list of activities to rotate through
+    -   **name**: name of activity
+    -   **type**: activity type, as seen in discord docs ("PLAYING", "LISTENING", etc.)

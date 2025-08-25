@@ -1,0 +1,21 @@
+export const ICONS = {
+    APP_ERROR: '🛑',
+    USER_ERROR: '❌',
+    SUCCESS: '✅',
+    TRACK: '🎵',
+    TRACKS: '🎶',
+    SEARCH: '🔍',
+    LOADING: '⏳',
+    LOOP_ON: '🟢',
+    LOOP_OFF: '🔴',
+    CMD: {
+        HELP: '❓',
+        LOOP: '🔄',
+        PAUSE: '⏸️',
+        PLAY: '⏯️',
+        QUEUE: '📄',
+        SKIP: '⏭️',
+        SLASH: '🚀',
+        UNPAUSE: '⏯️',
+    },
+} as const;
