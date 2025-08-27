@@ -39,6 +39,7 @@ export class MusicBot {
                 GatewayIntentBits.GuildVoiceStates,
                 GatewayIntentBits.GuildMessages,
                 GatewayIntentBits.MessageContent,
+                GatewayIntentBits.DirectMessages,
             ],
         });
         this.logger = logger;
