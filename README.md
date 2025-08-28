@@ -18,7 +18,23 @@ npm install
 # Create the config file and set values
 nano config.toml
 
-# Start the bot ("bun start" prevents graceful shutdown)
+# Start the bot
+npm start
+```
+
+## Update
+
+```bash
+# Pull new changes
+git pull
+
+# Update dependencies
+npm install
+
+# Clear youtubei.js cache
+rm -rf ./innertube-cache
+
+# Start the bot
 npm start
 ```
 
@@ -34,3 +50,5 @@ Create config.toml file and set following values:
 -   **\[\[activities\]\]**: list of activities to rotate through
     -   **name**: name of activity
     -   **type**: activity type, as seen in discord docs ("PLAYING", "LISTENING", etc.)
+-   **\[\[admins\]\]**: list of admin users that have access to extra commands
+    -   **id**: discord user id
