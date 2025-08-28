@@ -41,6 +41,8 @@ export class MusicBot {
                 GatewayIntentBits.MessageContent,
                 GatewayIntentBits.DirectMessages,
             ],
+            // DM Channels are not fetched at startup, and MessageCreate event does not fire if channel is uncached
+            partials: [Partials.Channel],
         });
         this.logger = logger;
 
