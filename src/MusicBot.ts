@@ -1,4 +1,4 @@
-import { ActivityType, Client, Events, GatewayIntentBits, Routes, type Snowflake } from 'discord.js';
+import { ActivityType, Client, Events, GatewayIntentBits, Partials, Routes, type Snowflake } from 'discord.js';
 import type { Logger } from 'winston';
 import { ERROR_LOG_KEY, formatError } from './loggerUtils.ts';
 import { HybridChatCommandManager } from './chatCommands/index.ts';
@@ -15,6 +15,7 @@ export class MusicBot {
     public readonly client: Client;
     public readonly logger: Logger;
 
+    public readonly adminIds: Readonly<Snowflake[]>;
     public readonly hybridChatCommandManager: HybridChatCommandManager;
     public readonly activityManager: ActivityManager;
     public readonly sessionManager: SessionManager;
@@ -23,12 +24,14 @@ export class MusicBot {
     public constructor({
         activities,
         activityRotationInterval,
+        adminIds,
         messageCommandPrefix,
         trackManager,
         logger,
     }: {
         activities: MusicBotActivity[];
         activityRotationInterval: number;
+        adminIds: Readonly<Snowflake[]>;
         messageCommandPrefix: string;
         trackManager: TrackManager;
         logger: Logger;
@@ -46,6 +49,7 @@ export class MusicBot {
         });
         this.logger = logger;
 
+        this.adminIds = adminIds;
         this.trackManager = trackManager;
         this.hybridChatCommandManager = new HybridChatCommandManager(this, messageCommandPrefix);
         this.activityManager = new ActivityManager(this, activities, activityRotationInterval);
@@ -59,7 +63,7 @@ export class MusicBot {
         });
         this.client.on(Events.Error, (err) => {
             this.logger.error('discord.js error', {
-                [ERROR_LOG_KEY]: err,
+                [ERROR_LOG_KEY]: formatError(err),
             });
         });
     }
@@ -113,7 +117,9 @@ export class MusicBot {
     public async stop() {
         this.logger.info('Shutting down music bot...');
         this.activityManager.stopRotation();
-        this.sessionManager.destroyAll('shutdown');
+        for (const session of this.sessionManager.getAllSessions()) {
+            session.destroy('shutdown');
+        }
 
         try {
             await this.client.destroy();

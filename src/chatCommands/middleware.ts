@@ -38,3 +38,17 @@ export const requiresTrackPlayingMiddleware = <TArgs>(
 
         await handler(ctx, session, session.currentTrack);
     });
+
+export const requiresAppAdmin =
+    <TArgs>(handler: (ctx: HybridChatCommandHandlerContext<TArgs>) => Promise<void>): HybridChatCommandHandler<TArgs> =>
+    async (ctx) => {
+        if (!ctx.bot.adminIds.includes(ctx.userId)) {
+            await ctx.upsertReply({
+                content: `${ICONS.USER_ERROR} **You cannot use this command.**`,
+                ephemeral: true,
+            });
+            return;
+        }
+
+        await handler(ctx);
+    };

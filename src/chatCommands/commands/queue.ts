@@ -3,13 +3,13 @@ import type { HybridChatCommand } from '../index.ts';
 import type { Track } from '../../tracks/TrackManager.ts';
 import { requiresSessionMiddleware } from '../middleware.ts';
 import { ICONS } from '../../icons.ts';
-import { formatTime } from '../../utils.ts';
+import { formatDuration } from '../../utils.ts';
 
 const QUEUE_MAX_VISIBLE_ITEMS = 5;
 const createQueueEmbedFieldValue = (track: Track): string => {
     const parts = [
         track.url && `[Link](${track.url})`,
-        track.durationSeconds && formatTime(track.durationSeconds),
+        track.durationSeconds && formatDuration(track.durationSeconds),
         track.authorName && `Author: ${escapeMarkdown(track.authorName)}`,
     ];
 
@@ -60,7 +60,7 @@ export const queueHybridChatCommand = {
             }
 
             embedBuilder.setDescription(
-                `Queue length: **${formatTime(queueDurationSeconds)}**, Looping: ${
+                `Queue length: **${formatDuration(queueDurationSeconds)}**, Looping: ${
                     session.looping ? ICONS.LOOP_ON : ICONS.LOOP_OFF
                 }`
             );

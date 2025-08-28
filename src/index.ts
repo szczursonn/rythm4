@@ -77,6 +77,13 @@ const shutdownManager = (() => {
                                 })
                             )
                             .default([]),
+                        admins: z
+                            .array(
+                                z.object({
+                                    id: z.string().min(1),
+                                })
+                            )
+                            .default([]),
                     })
                     .parse(parseToml((await readFile('./config.toml')).toString())),
             };
@@ -170,9 +177,10 @@ const shutdownManager = (() => {
 
     try {
         const bot = new MusicBot({
-            messageCommandPrefix: configLoadResult.config.command_prefix,
             activities: configLoadResult.config.activities,
             activityRotationInterval: configLoadResult.config.activity_update_interval,
+            adminIds: configLoadResult.config.admins.map((obj) => obj.id),
+            messageCommandPrefix: configLoadResult.config.command_prefix,
             trackManager,
             logger,
         });

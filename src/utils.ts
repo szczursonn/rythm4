@@ -1,4 +1,4 @@
-export const formatTime = (seconds?: number): string => {
+export const formatDuration = (seconds?: number): string => {
     if (seconds === undefined) {
         return '';
     }

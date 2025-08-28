@@ -23,9 +23,7 @@ export class SessionManager {
         this.guildIdToSession.delete(session.guildId);
     }
 
-    public destroyAll(logReason: string) {
-        for (const [, session] of this.guildIdToSession) {
-            session.destroy(logReason);
-        }
+    public getAllSessions() {
+        return Array.from(this.guildIdToSession.values());
     }
 }

@@ -23,6 +23,7 @@ import { unpauseHybridChatCommand } from './commands/unpause.ts';
 import { queueHybridChatCommand } from './commands/queue.ts';
 import { helpHybridChatCommand } from './commands/help.ts';
 import { slashHybridChatCommand } from './commands/slash.ts';
+import { statusHybridChatCommand } from './commands/status.ts';
 
 export type HybridChatCommand<TArgs = unknown> = {
     classic?: {
@@ -236,6 +237,7 @@ export class HybridChatCommandManager {
         queueHybridChatCommand,
         helpHybridChatCommand,
         slashHybridChatCommand,
+        statusHybridChatCommand,
     ] as Readonly<HybridChatCommand[]>;
 
     private static readonly CLASSIC_ALIAS_TO_COMMAND = this.COMMANDS.reduce((map, chatCommand) => {

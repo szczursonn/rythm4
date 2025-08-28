@@ -17,5 +17,6 @@ export const ICONS = {
         SKIP: '⏭️',
         SLASH: '🚀',
         UNPAUSE: '⏯️',
+        STATUS: 'ℹ️',
     },
 } as const;
