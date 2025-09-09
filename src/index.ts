@@ -186,7 +186,7 @@ const shutdownManager = (() => {
         });
 
         await bot.start(configLoadResult.config.discord_token);
-        shutdownManager.registerCallback(() => bot.stop());
+        shutdownManager.registerCallback(() => bot.stop('appShutdown'));
     } catch (err) {
         logger.error('Failed to start music bot', {
             [ERROR_LOG_KEY]: formatError(err),

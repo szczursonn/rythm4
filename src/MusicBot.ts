@@ -85,7 +85,7 @@ export class MusicBot {
             this.activityManager.rotateActivity();
         } catch (err) {
             try {
-                await this.stop();
+                await this.stop('startError');
             } catch (_) {}
             throw err;
         }
@@ -114,15 +114,19 @@ export class MusicBot {
         });
     }
 
-    public async stop() {
-        this.logger.info('Shutting down music bot...');
+    public async stop(logReason: string) {
+        this.logger.info('Shutting down music bot...', {
+            reason: logReason,
+        });
         this.activityManager.stopRotation();
         for (const session of this.sessionManager.getAllSessions()) {
             session.destroy('shutdown');
         }
 
         try {
-            await this.client.destroy();
+            if (this.client.isReady()) {
+                await this.client.destroy();
+            }
             this.logger.info('Music bot has shut down');
         } catch (err) {
             this.logger.error('Failed to destroy Discord client', {
