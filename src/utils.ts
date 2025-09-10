@@ -23,3 +23,5 @@ export const safeParseURL = (str: string) => {
         return null;
     }
 };
+
+export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

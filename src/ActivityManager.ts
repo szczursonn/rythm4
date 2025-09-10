@@ -1,3 +1,4 @@
+import { setInterval, clearInterval } from 'node:timers';
 import type { ActivityType } from 'discord.js';
 import type { MusicBot } from './MusicBot.ts';
 
@@ -21,6 +22,7 @@ export class ActivityManager {
         }
 
         this.activityRotationIntervalRef = setInterval(this.rotateActivity.bind(this), this.activityRotationInterval);
+        this.bot.logger.debug('Started activity rotation interval');
     }
 
     public stopRotation() {
@@ -30,6 +32,7 @@ export class ActivityManager {
 
         clearInterval(this.activityRotationIntervalRef);
         this.activityRotationIntervalRef = null;
+        this.bot.logger.debug('Stopped activity rotation interval');
     }
 
     public rotateActivity() {

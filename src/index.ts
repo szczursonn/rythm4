@@ -7,9 +7,9 @@ import 'winston-daily-rotate-file';
 import { ERROR_LOG_KEY, formatError } from './loggerUtils.ts';
 import { MusicBot } from './MusicBot.ts';
 import { TrackManager } from './tracks/TrackManager.ts';
-import { YoutubeTrackProvider } from './tracks/YoutubeTrackProvider.ts';
-import { SoundcloudTrackProvider } from './tracks/SoundcloudTrackProvider.ts';
-import { SpotifyTrackProvider } from './tracks/SpotifyTrackProvider.ts';
+import { YoutubeTrackProvider } from './tracks/youtube/trackProvider.ts';
+import { SoundcloudTrackProvider } from './tracks/soundcloud/trackProvider.ts';
+import { SpotifyTrackProvider } from './tracks/spotify/trackProvider.ts';
 
 const shutdownManager = (() => {
     const shutdownCallbacks = [] as (() => Promise<void> | void)[];
@@ -81,6 +81,14 @@ const shutdownManager = (() => {
                             .array(
                                 z.object({
                                     id: z.string().min(1),
+                                })
+                            )
+                            .default([]),
+                        health_check: z
+                            .array(
+                                z.object({
+                                    label: z.string().min(1),
+                                    query: z.string().min(1),
                                 })
                             )
                             .default([]),
@@ -180,6 +188,7 @@ const shutdownManager = (() => {
             activities: configLoadResult.config.activities,
             activityRotationInterval: configLoadResult.config.activity_update_interval,
             adminIds: configLoadResult.config.admins.map((obj) => obj.id),
+            healthCheckTests: configLoadResult.config.health_check,
             messageCommandPrefix: configLoadResult.config.command_prefix,
             trackManager,
             logger,

@@ -3,6 +3,7 @@ import {
     type AudioPlayerState,
     AudioPlayerStatus,
     createAudioPlayer,
+    createAudioResource,
     entersState,
     joinVoiceChannel,
     NoSubscriberBehavior,
@@ -40,7 +41,7 @@ export class Session {
 
     public constructor(
         public readonly bot: MusicBot,
-        public readonly notificationsChannelId: Snowflake,
+        public readonly notificationsChannelId: Snowflake | null,
         voiceChannel: VoiceBasedChannel
     ) {
         this.logger = bot.logger.child({
@@ -51,6 +52,7 @@ export class Session {
             guildId: voiceChannel.guildId,
             channelId: voiceChannel.id,
             adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+            selfDeaf: true,
         });
         this.voiceConnection.on('stateChange', this.handleVoiceConnectionStateChange.bind(this));
         this.voiceConnection.on('error', this.handleVoiceConnectionError.bind(this));
@@ -80,6 +82,10 @@ export class Session {
     }
 
     public get notificationsChannel() {
+        if (this.notificationsChannelId === null) {
+            return null;
+        }
+
         const channel = this.bot.client.channels.cache.get(this.notificationsChannelId);
         if (!channel || !channel.isSendable()) {
             return null;
@@ -147,7 +153,7 @@ export class Session {
         this.logger.info('Session destroyed', { reason: logReason });
     }
 
-    private processQueue() {
+    private async processQueue() {
         if (this.isProcessingQueue || this.isDestroyed || this.audioPlayer.state.status !== AudioPlayerStatus.Idle) {
             return;
         }
@@ -161,28 +167,29 @@ export class Session {
         this.stopInactivityTimeout();
 
         this.isProcessingQueue = true;
-        nextTrack
-            .createAudioResource()
-            .then(({ audioResource, resolvedTrack }) => {
-                this.#currentTrack = resolvedTrack;
-                this.paused = false;
-                this.audioPlayer.play(audioResource);
 
-                this.logger.debug('Started playback', {
-                    trackTitle: resolvedTrack.title,
-                    trackURL: resolvedTrack.url,
-                });
-            })
-            .catch((err) => {
-                this.logger.error('Failed to start playback', {
-                    [ERROR_LOG_KEY]: formatError(err),
-                    trackTitle: nextTrack.title,
-                });
-            })
-            .finally(() => {
-                this.isProcessingQueue = false;
-                this.processQueue();
+        try {
+            const { stream, resolvedTrack } = await nextTrack.createStream();
+            const audioResource = createAudioResource(stream);
+
+            this.#currentTrack = resolvedTrack;
+            this.paused = false;
+            this.audioPlayer.play(audioResource);
+
+            this.logger.debug('Started playback', {
+                trackTitle: resolvedTrack.title,
+                trackURL: resolvedTrack.url,
             });
+        } catch (err) {
+            this.logger.error('Failed to start playback', {
+                [ERROR_LOG_KEY]: formatError(err),
+                trackTitle: nextTrack.title,
+            });
+            this.sendNotificationMessage(`${ICONS.APP_ERROR} **There was an unexpected error when starting playback**`);
+        } finally {
+            this.isProcessingQueue = false;
+            this.processQueue();
+        }
     }
 
     private handleVoiceConnectionStateChange(oldState: VoiceConnectionState, newState: VoiceConnectionState) {
@@ -202,7 +209,7 @@ export class Session {
                         this.voiceConnection,
                         VoiceConnectionStatus.Connecting,
                         DURATION.CHANNEL_SWITCH_CHECK_TIMEOUT
-                    ).catch(() => this.destroy('channel switch check timeout'));
+                    ).catch(() => this.destroy('channel switch check timeout - kicked from vc'));
                 } else if (this.voiceConnection.rejoinAttempts < MAX_REJOIN_ATTEMPTS) {
                     // Manual reconnect
                     setTimeout(

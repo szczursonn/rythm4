@@ -1,4 +1,4 @@
-import type { AudioResource } from '@discordjs/voice';
+import type { Readable } from 'node:stream';
 import { safeParseURL } from '../utils.ts';
 
 export interface Track {
@@ -6,8 +6,8 @@ export interface Track {
     get durationSeconds(): number | null;
     get url(): string | null;
     get authorName(): string | null;
-    createAudioResource(): Promise<{
-        audioResource: AudioResource;
+    createStream(): Promise<{
+        stream: Readable;
         resolvedTrack: Track;
     }>;
 }

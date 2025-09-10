@@ -1,10 +1,20 @@
-import { ActivityType, Client, Events, GatewayIntentBits, Partials, Routes, type Snowflake } from 'discord.js';
+import {
+    ActivityType,
+    Client,
+    Events,
+    GatewayIntentBits,
+    type MessageCreateOptions,
+    Partials,
+    Routes,
+    type Snowflake,
+} from 'discord.js';
 import type { Logger } from 'winston';
 import { ERROR_LOG_KEY, formatError } from './loggerUtils.ts';
 import { HybridChatCommandManager } from './chatCommands/index.ts';
 import type { TrackManager } from './tracks/TrackManager.ts';
 import { ActivityManager } from './ActivityManager.ts';
 import { SessionManager } from './SessionManager.ts';
+import { TrackHealthChecker, type TrackHealthCheckTest } from './tracks/TrackHealthChecker.ts';
 
 export type MusicBotActivity = {
     name: string;
@@ -20,11 +30,13 @@ export class MusicBot {
     public readonly activityManager: ActivityManager;
     public readonly sessionManager: SessionManager;
     public readonly trackManager: TrackManager;
+    public readonly trackHealthChecker: TrackHealthChecker;
 
     public constructor({
         activities,
         activityRotationInterval,
         adminIds,
+        healthCheckTests,
         messageCommandPrefix,
         trackManager,
         logger,
@@ -32,6 +44,7 @@ export class MusicBot {
         activities: MusicBotActivity[];
         activityRotationInterval: number;
         adminIds: Readonly<Snowflake[]>;
+        healthCheckTests: Readonly<TrackHealthCheckTest[]>;
         messageCommandPrefix: string;
         trackManager: TrackManager;
         logger: Logger;
@@ -55,6 +68,7 @@ export class MusicBot {
         this.activityManager = new ActivityManager(this, activities, activityRotationInterval);
         this.sessionManager = new SessionManager(this);
         this.trackManager = trackManager;
+        this.trackHealthChecker = new TrackHealthChecker(this, healthCheckTests);
 
         this.client.on(Events.Warn, (msg) => {
             this.logger.warn('discord.js warning', {
@@ -83,6 +97,7 @@ export class MusicBot {
 
             this.activityManager.startRotation();
             this.activityManager.rotateActivity();
+            this.trackHealthChecker.startAutoCheck();
         } catch (err) {
             try {
                 await this.stop('startError');
@@ -119,6 +134,7 @@ export class MusicBot {
             reason: logReason,
         });
         this.activityManager.stopRotation();
+        this.trackHealthChecker.stopAutoCheck();
         for (const session of this.sessionManager.getAllSessions()) {
             session.destroy('shutdown');
         }
@@ -132,6 +148,23 @@ export class MusicBot {
             this.logger.error('Failed to destroy Discord client', {
                 [ERROR_LOG_KEY]: formatError(err),
             });
+        }
+    }
+
+    public async sendMessageToAdmins(message: MessageCreateOptions) {
+        for (const adminId of this.adminIds) {
+            try {
+                const channel = await this.client.users.createDM(adminId);
+                await channel.send(message);
+                this.logger.debug('Send message to admin', {
+                    adminId,
+                });
+            } catch (err) {
+                this.logger.error('Failed to send message to admin', {
+                    adminId,
+                    [ERROR_LOG_KEY]: formatError(err),
+                });
+            }
         }
     }
 }

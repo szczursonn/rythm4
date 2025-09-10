@@ -24,6 +24,7 @@ import { queueHybridChatCommand } from './commands/queue.ts';
 import { helpHybridChatCommand } from './commands/help.ts';
 import { slashHybridChatCommand } from './commands/slash.ts';
 import { statusHybridChatCommand } from './commands/status.ts';
+import { healthCheckHybridChatCommand } from './commands/healthcheck.ts';
 
 export type HybridChatCommand<TArgs = unknown> = {
     classic?: {
@@ -85,6 +86,7 @@ export abstract class HybridChatCommandHandlerContext<TArgs = unknown> {
         embeds?: APIEmbed[];
         ephemeral?: boolean;
         defer?: boolean;
+        suppressEmbeds?: boolean;
     }): Promise<void>;
 }
 
@@ -119,8 +121,9 @@ class ClassicChatCommandHandlerContext<TArgs> extends HybridChatCommandHandlerCo
     public async upsertReply({
         content = '',
         embeds = [],
+        suppressEmbeds = false,
     }: Parameters<HybridChatCommandHandlerContext['upsertReply']>[0]): Promise<void> {
-        const flags = MessageFlags.SuppressNotifications | 0;
+        const flags = MessageFlags.SuppressNotifications | (suppressEmbeds ? MessageFlags.SuppressEmbeds : 0);
 
         if (this.replyMessage === null) {
             this.replyMessage = await this.message.reply({
@@ -178,11 +181,15 @@ class SlashChatCommandHandlerContext<TArgs> extends HybridChatCommandHandlerCont
         embeds = [],
         ephemeral = false,
         defer = false,
+        suppressEmbeds = false,
     }: Parameters<HybridChatCommandHandlerContext['upsertReply']>[0]): Promise<void> {
         const message = {
             content,
             embeds,
-            flags: MessageFlags.SuppressNotifications | (ephemeral ? MessageFlags.Ephemeral : 0),
+            flags:
+                MessageFlags.SuppressNotifications |
+                (ephemeral ? MessageFlags.Ephemeral : 0) |
+                (suppressEmbeds ? MessageFlags.SuppressEmbeds : 0),
         };
 
         if (this.interaction.replied || this.interaction.deferred) {
@@ -238,6 +245,7 @@ export class HybridChatCommandManager {
         helpHybridChatCommand,
         slashHybridChatCommand,
         statusHybridChatCommand,
+        healthCheckHybridChatCommand,
     ] as Readonly<HybridChatCommand[]>;
 
     private static readonly CLASSIC_ALIAS_TO_COMMAND = this.COMMANDS.reduce((map, chatCommand) => {

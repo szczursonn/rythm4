@@ -11,7 +11,7 @@ export class SessionManager {
         return this.guildIdToSession.get(guildId) ?? null;
     }
 
-    public getOrCreateSession(voiceChannel: VoiceBasedChannel, notificationsChannelId: Snowflake) {
+    public getOrCreateSession(voiceChannel: VoiceBasedChannel, notificationsChannelId: Snowflake | null) {
         return this.getSession(voiceChannel.guildId) ?? new Session(this.bot, notificationsChannelId, voiceChannel);
     }
 

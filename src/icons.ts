@@ -18,5 +18,6 @@ export const ICONS = {
         SLASH: '🚀',
         UNPAUSE: '⏯️',
         STATUS: 'ℹ️',
+        HEALTH_CHECK: '🥗',
     },
 } as const;

@@ -1,6 +1,6 @@
 import { parse as parseHTML } from 'node-html-parser';
-import type { TrackProvider, TrackProviderQueryResult } from './TrackManager.ts';
-import type { YoutubeTrackProvider } from './YoutubeTrackProvider.ts';
+import type { TrackProvider, TrackProviderQueryResult } from '../TrackManager.ts';
+import type { YoutubeTrackProvider } from '../youtube/trackProvider.ts';
 
 export class SpotifyTrackProvider implements TrackProvider {
     public constructor(private readonly youtubeProvider: YoutubeTrackProvider) {}
