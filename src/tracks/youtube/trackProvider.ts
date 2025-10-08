@@ -17,7 +17,15 @@ const SEARCH_ITEM_TYPES = {
 const YT_SHORTS_PATHNAME = '/shorts/';
 
 export class YoutubeTrackProvider implements TrackProvider {
-    public static async create({ cookie, cachePath }: { cookie: string | undefined; cachePath: string }) {
+    public static async create({
+        cookie,
+        playerIdOverride,
+        cachePath,
+    }: {
+        cookie?: string;
+        playerIdOverride?: string;
+        cachePath: string;
+    }) {
         // search, search suggestions: MUSIC
         // video/playlist info: WEB_EMBEDDED (TV is missing some data)
         // streaming: if age-restricted - TV, else WEB_EMBEDDED
@@ -27,16 +35,19 @@ export class YoutubeTrackProvider implements TrackProvider {
                 client_type: ClientType.WEB_EMBEDDED,
                 cache: new UniversalCache(true, resolve(cachePath, ClientType.WEB_EMBEDDED)),
                 cookie,
+                player_id: playerIdOverride,
             }),
             Innertube.create({
                 client_type: ClientType.TV,
                 cache: new UniversalCache(true, resolve(cachePath, ClientType.TV)),
                 cookie,
+                player_id: playerIdOverride,
             }),
             Innertube.create({
                 client_type: ClientType.MUSIC,
                 cache: new UniversalCache(true, resolve(cachePath, ClientType.MUSIC)),
                 cookie,
+                player_id: playerIdOverride,
             }),
         ]);
 

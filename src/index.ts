@@ -47,6 +47,7 @@ const shutdownManager = (() => {
                     .object({
                         debug: z.boolean().default(false),
                         youtube_cookie: z.string().min(1).optional(),
+                        youtube_player_id: z.string().min(1).optional(),
                         discord_token: z
                             .string()
                             .transform((val) => val.trim())
@@ -168,6 +169,7 @@ const shutdownManager = (() => {
     try {
         const youtubeProvider = await YoutubeTrackProvider.create({
             cookie: configLoadResult.config.youtube_cookie,
+            playerIdOverride: configLoadResult.config.youtube_player_id,
             cachePath: './innertube-cache',
         });
 
