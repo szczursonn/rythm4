@@ -305,7 +305,9 @@ export class HybridChatCommandManager {
             commandNameEndIndex = message.content.length;
         }
 
-        const commandName = message.content.substring(this.classicCommandPrefix.length, commandNameEndIndex);
+        const commandName = message.content
+            .substring(this.classicCommandPrefix.length, commandNameEndIndex)
+            .toLowerCase();
         const argsLine = message.content.substring(commandNameEndIndex).trim();
 
         const chatCommand = HybridChatCommandManager.CLASSIC_ALIAS_TO_COMMAND[commandName];
