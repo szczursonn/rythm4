@@ -122,10 +122,12 @@ export class TrackHealthChecker {
 
         if (failures.length === 0) {
             this.bot.logger.info('Health check succeeded');
+            this.bot.activityManager.presenceStatus = 'online';
         } else {
             this.bot.logger.error('Health check failed', {
                 failures,
             });
+            this.bot.activityManager.presenceStatus = 'dnd';
         }
 
         return failures;

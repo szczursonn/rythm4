@@ -1,5 +1,5 @@
 import { setInterval, clearInterval } from 'node:timers';
-import type { ActivityType } from 'discord.js';
+import type { ActivityType, PresenceStatusData } from 'discord.js';
 import type { MusicBot } from './MusicBot.ts';
 
 export type MusicBotActivity = {
@@ -9,6 +9,16 @@ export type MusicBotActivity = {
 
 export class ActivityManager {
     private activityRotationIntervalRef: ReturnType<typeof setInterval> | null = null;
+    private currentActivity: MusicBotActivity | null = null;
+
+    #presenceStatus: PresenceStatusData = 'online';
+    public get presenceStatus() {
+        return this.#presenceStatus;
+    }
+    public set presenceStatus(value) {
+        this.#presenceStatus = value;
+        this.sendClientPresenceUpdate();
+    }
 
     public constructor(
         public readonly bot: MusicBot,
@@ -23,6 +33,8 @@ export class ActivityManager {
 
         this.activityRotationIntervalRef = setInterval(this.rotateActivity.bind(this), this.activityRotationInterval);
         this.bot.logger.debug('Started activity rotation interval');
+
+        this.rotateActivity();
     }
 
     public stopRotation() {
@@ -35,19 +47,29 @@ export class ActivityManager {
         this.bot.logger.debug('Stopped activity rotation interval');
     }
 
-    public rotateActivity() {
-        if (this.activities.length === 0 || this.bot.client.user === null) {
+    private rotateActivity() {
+        this.currentActivity =
+            this.activities.length === 0
+                ? null
+                : this.activities[Math.floor(Math.random() * 0.99 * this.activities.length)]!;
+
+        this.sendClientPresenceUpdate();
+    }
+
+    private sendClientPresenceUpdate() {
+        if (this.bot.client.user === null) {
+            this.bot.logger.error('ActivityManager: bot user is null');
             return;
         }
 
-        const newActivity = this.activities[Math.floor(Math.random() * 0.99 * this.activities.length)]!;
-
         this.bot.client.user.setPresence({
-            activities: [newActivity],
+            status: this.presenceStatus,
+            activities: this.currentActivity === null ? [] : [this.currentActivity],
         });
 
         this.bot.logger.info('Updated presence', {
-            activity: newActivity,
+            status: this.presenceStatus,
+            activity: this.currentActivity,
         });
     }
 }

@@ -96,7 +96,6 @@ export class MusicBot {
             });
 
             this.activityManager.startRotation();
-            this.activityManager.rotateActivity();
             this.trackHealthChecker.startAutoCheck();
         } catch (err) {
             try {
