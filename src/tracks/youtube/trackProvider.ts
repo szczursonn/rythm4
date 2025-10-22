@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import Innertube, { ClientType, UniversalCache, YTNodes } from 'youtubei.js';
+import Innertube, { ClientType, Platform, type Types, UniversalCache, YTNodes } from 'youtubei.js';
 import type {
     AutocompleteTrackProviderQueryResult,
     Track,
@@ -17,6 +17,8 @@ const SEARCH_ITEM_TYPES = {
 const YT_SHORTS_PATHNAME = '/shorts/';
 
 export class YoutubeTrackProvider implements TrackProvider {
+    private static isEvalInitialized = false;
+
     public static async create({
         cookie,
         playerIdOverride,
@@ -26,6 +28,12 @@ export class YoutubeTrackProvider implements TrackProvider {
         playerIdOverride?: string;
         cachePath: string;
     }) {
+        if (!this.isEvalInitialized) {
+            Platform.shim.eval = unsafeEval;
+
+            this.isEvalInitialized = true;
+        }
+
         // search, search suggestions: MUSIC
         // video/playlist info: WEB_EMBEDDED (TV is missing some data)
         // streaming: if age-restricted - TV, else WEB_EMBEDDED
@@ -270,3 +278,20 @@ export class YoutubeTrackProvider implements TrackProvider {
         return tracks;
     }
 }
+
+// TODO: THIS IS VERY UNSAFE
+const unsafeEval = async (data: Types.BuildScriptResult, env: Record<string, Types.VMPrimative>) => {
+    const properties = [];
+
+    if (env.n) {
+        properties.push(`n: exportedVars.nFunction("${env.n}")`);
+    }
+
+    if (env.sig) {
+        properties.push(`sig: exportedVars.sigFunction("${env.sig}")`);
+    }
+
+    const code = `${data.output}\nreturn { ${properties.join(', ')} }`;
+
+    return new Function(code)();
+};
