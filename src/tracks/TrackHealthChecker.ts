@@ -1,5 +1,5 @@
 import { setTimeout, setInterval, clearInterval } from 'node:timers';
-import { MessageFlags } from 'discord.js';
+import { escapeMarkdown, MessageFlags } from 'discord.js';
 import { createAudioResource } from '@discordjs/voice';
 import type { MusicBot } from '../MusicBot.ts';
 import { ERROR_LOG_KEY, formatError } from '../loggerUtils.ts';
@@ -135,7 +135,8 @@ export class TrackHealthChecker {
 
     public static createFailureMessage(failures: Awaited<ReturnType<TrackHealthChecker['runHealthCheck']>>) {
         return `${ICONS.APP_ERROR} **Health check failed** ${failures.map(
-            (failure) => `\n- ${failure.label} (${failure.query})\n${failure[ERROR_LOG_KEY]}`
+            (failure) =>
+                `\n- **${escapeMarkdown(failure.label)}** (${failure.query})\n${escapeMarkdown(failure[ERROR_LOG_KEY])}`
         )}`;
     }
 
