@@ -59,13 +59,20 @@ export const playHybridChatCommand = {
             return;
         }
 
-        const [queryResult] = await Promise.all([
-            ctx.bot.trackManager.handleQuery(ctx.args.query),
-            ctx.upsertReply({
-                content: `${ICONS.LOADING} **...**`,
-                defer: true,
-            }),
-        ]);
+        let queryResult = null as Awaited<ReturnType<typeof ctx.bot.trackManager.handleQuery>>;
+        (
+            await Promise.allSettled([
+                ctx.bot.trackManager.handleQuery(ctx.args.query).then((value) => (queryResult = value)),
+                ctx.upsertReply({
+                    content: `${ICONS.LOADING} **...**`,
+                    defer: true,
+                }),
+            ])
+        ).forEach((promiseResult) => {
+            if (promiseResult.status === 'rejected') {
+                throw promiseResult.reason;
+            }
+        });
 
         if (queryResult === null) {
             await ctx.upsertReply({

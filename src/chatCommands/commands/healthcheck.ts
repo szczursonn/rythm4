@@ -12,14 +12,14 @@ export const healthCheckHybridChatCommand = {
         dm: true,
     },
     handler: requiresAppAdmin(async (ctx) => {
-        const initialReplyPromise = ctx
+        await ctx
             .upsertReply({
                 content: `${ICONS.LOADING} **Health check is running...**`,
                 defer: true,
             })
             .catch((_) => {});
 
-        const [failures] = await Promise.all([ctx.bot.trackHealthChecker.runHealthCheck(), initialReplyPromise]);
+        const failures = await ctx.bot.trackHealthChecker.runHealthCheck();
 
         await ctx.upsertReply({
             content:

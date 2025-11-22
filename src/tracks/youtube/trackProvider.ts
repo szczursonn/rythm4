@@ -34,14 +34,14 @@ export class YoutubeTrackProvider implements TrackProvider {
             this.isEvalInitialized = true;
         }
 
-        // search, search suggestions: MUSIC
-        // video/playlist info: WEB_EMBEDDED (TV is missing some data)
-        // streaming: if age-restricted - TV, else WEB_EMBEDDED
+        // video/playlist info: WEB (TV is missing most data like video title)
+        // streaming: TV (WEB doesn't work)
+        // search, search suggestions: MUSIC (better results quality than YT proper)
 
-        const [primaryInnertube, backupInnertube, musicInnertube] = await Promise.all([
+        const [infoInnertube, streamInnertube, musicInnertube] = await Promise.all([
             Innertube.create({
-                client_type: ClientType.WEB_EMBEDDED,
-                cache: new UniversalCache(true, resolve(cachePath, ClientType.WEB_EMBEDDED)),
+                client_type: ClientType.WEB,
+                cache: new UniversalCache(true, resolve(cachePath, ClientType.WEB)),
                 cookie,
                 player_id: playerIdOverride,
             }),
@@ -59,12 +59,12 @@ export class YoutubeTrackProvider implements TrackProvider {
             }),
         ]);
 
-        return new this(primaryInnertube, backupInnertube, musicInnertube);
+        return new this(infoInnertube, streamInnertube, musicInnertube);
     }
 
     private constructor(
-        public readonly primaryInnertube: Innertube,
-        public readonly backupInnertube: Innertube,
+        public readonly infoInnertube: Innertube,
+        public readonly streamInnertube: Innertube,
         public readonly musicInnertube: Innertube
     ) {}
 
@@ -179,11 +179,10 @@ export class YoutubeTrackProvider implements TrackProvider {
     }
 
     public async getTrackById(videoId: string) {
-        const videoInfo = await this.primaryInnertube.getBasicInfo(videoId);
-        const videoInfoForStream =
-            videoInfo.playability_status?.status === 'OK'
-                ? videoInfo
-                : await this.backupInnertube.getBasicInfo(videoId);
+        const [videoInfo, videoInfoForStream] = await Promise.all([
+            this.infoInnertube.getBasicInfo(videoId),
+            this.streamInnertube.getBasicInfo(videoId),
+        ]);
 
         return new YoutubeTrack(this, videoInfo, videoInfoForStream);
     }
@@ -200,7 +199,7 @@ export class YoutubeTrackProvider implements TrackProvider {
     }
 
     private async getTracksByPlaylistId(playlistId: string) {
-        const playlistResponses = [await this.primaryInnertube.getPlaylist(playlistId)];
+        const playlistResponses = [await this.infoInnertube.getPlaylist(playlistId)];
         while (playlistResponses.at(-1)!.has_continuation) {
             playlistResponses.push(await playlistResponses.at(-1)!.getContinuation());
         }

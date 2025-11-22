@@ -115,7 +115,7 @@ export class TrackHealthChecker {
             } catch (err) {
                 failures.push({
                     ...test,
-                    [ERROR_LOG_KEY]: formatError(err),
+                    [ERROR_LOG_KEY]: formatError(err, false),
                 });
             }
         }
