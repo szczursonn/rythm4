@@ -6,8 +6,6 @@ import { ERROR_LOG_KEY, formatError } from '../loggerUtils.ts';
 import { ICONS } from '../icons.ts';
 import { wait } from '../utils.ts';
 
-const AUTO_CHECK_INTERVAL_DURATION = 12 * 60 * 60 * 1000;
-
 const START_POLL_INTERVAL = 50;
 const START_TIMEOUT = 5 * 1000;
 const PACKET_READ_COUNT_REQUIRED = 10;
@@ -20,16 +18,31 @@ export type TrackHealthCheckTest = {
 };
 
 export class TrackHealthChecker {
+    public readonly bot: MusicBot;
+    public readonly testIntervalMs: number;
+    public readonly tests: Readonly<TrackHealthCheckTest[]>;
     private autoCheckIntervalRef: ReturnType<typeof setInterval> | null = null;
 
-    public constructor(public readonly bot: MusicBot, public readonly tests: Readonly<TrackHealthCheckTest[]>) {}
+    public constructor({
+        bot,
+        testIntervalMs,
+        tests,
+    }: {
+        bot: MusicBot;
+        testIntervalMs: number;
+        tests: Readonly<TrackHealthCheckTest[]>;
+    }) {
+        this.bot = bot;
+        this.testIntervalMs = testIntervalMs;
+        this.tests = tests;
+    }
 
     public startAutoCheck() {
         if (this.autoCheckIntervalRef !== null) {
             return;
         }
 
-        this.autoCheckIntervalRef = setInterval(this.onInterval.bind(this), AUTO_CHECK_INTERVAL_DURATION);
+        this.autoCheckIntervalRef = setInterval(this.onInterval.bind(this), this.testIntervalMs);
         this.bot.logger.debug('Started health checker interval');
     }
 
@@ -136,7 +149,7 @@ export class TrackHealthChecker {
     public static createFailureMessage(failures: Awaited<ReturnType<TrackHealthChecker['runHealthCheck']>>) {
         return `${ICONS.APP_ERROR} **Health check failed** ${failures.map(
             (failure) =>
-                `\n- **${escapeMarkdown(failure.label)}** (${failure.query})\n${escapeMarkdown(failure[ERROR_LOG_KEY])}`
+                `\n- **${escapeMarkdown(failure.label)}** (${failure.query})\n${escapeMarkdown(failure[ERROR_LOG_KEY])}`,
         )}`;
     }
 

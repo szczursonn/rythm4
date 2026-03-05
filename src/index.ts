@@ -75,22 +75,27 @@ const shutdownManager = (() => {
                                             }
                                             throw new Error(`invalid activity type: "${val}"`);
                                         }),
-                                })
+                                }),
                             )
                             .default([]),
                         admins: z
                             .array(
                                 z.object({
                                     id: z.string().min(1),
-                                })
+                                }),
                             )
                             .default([]),
+                        health_check_interval: z
+                            .number()
+                            .positive()
+                            .optional()
+                            .default(12 * 60 * 60 * 1000),
                         health_check: z
                             .array(
                                 z.object({
                                     label: z.string().min(1),
                                     query: z.string().min(1),
-                                })
+                                }),
                             )
                             .default([]),
                     })
@@ -119,15 +124,15 @@ const shutdownManager = (() => {
 
                             return (info) => {
                                 const jason = JSON.stringify(
-                                    Object.fromEntries(Object.entries(info).filter(([key]) => !keysToIgnore.has(key)))
+                                    Object.fromEntries(Object.entries(info).filter(([key]) => !keysToIgnore.has(key))),
                                 );
 
                                 return `[${info.timestamp}] ${info.level}: ${info.message} ${
                                     jason === '{}' ? '' : jason
                                 }`;
                             };
-                        })()
-                    )
+                        })(),
+                    ),
                 ),
             }),
             new winston.transports.DailyRotateFile({
@@ -146,7 +151,7 @@ const shutdownManager = (() => {
                 logger.debug('Flushing logger...');
                 logger.once('finish', () => setTimeout(resolve, 0));
                 logger.end();
-            })
+            }),
     );
 
     if (!configLoadResult.config) {
@@ -190,6 +195,7 @@ const shutdownManager = (() => {
             activities: configLoadResult.config.activities,
             activityRotationInterval: configLoadResult.config.activity_update_interval,
             adminIds: configLoadResult.config.admins.map((obj) => obj.id),
+            healthCheckTestsIntervalMs: configLoadResult.config.health_check_interval,
             healthCheckTests: configLoadResult.config.health_check,
             messageCommandPrefix: configLoadResult.config.command_prefix,
             trackManager,

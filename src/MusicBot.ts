@@ -36,6 +36,7 @@ export class MusicBot {
         activities,
         activityRotationInterval,
         adminIds,
+        healthCheckTestsIntervalMs,
         healthCheckTests,
         messageCommandPrefix,
         trackManager,
@@ -44,6 +45,7 @@ export class MusicBot {
         activities: MusicBotActivity[];
         activityRotationInterval: number;
         adminIds: Readonly<Snowflake[]>;
+        healthCheckTestsIntervalMs: number;
         healthCheckTests: Readonly<TrackHealthCheckTest[]>;
         messageCommandPrefix: string;
         trackManager: TrackManager;
@@ -68,7 +70,11 @@ export class MusicBot {
         this.activityManager = new ActivityManager(this, activities, activityRotationInterval);
         this.sessionManager = new SessionManager(this);
         this.trackManager = trackManager;
-        this.trackHealthChecker = new TrackHealthChecker(this, healthCheckTests);
+        this.trackHealthChecker = new TrackHealthChecker({
+            bot: this,
+            testIntervalMs: healthCheckTestsIntervalMs,
+            tests: healthCheckTests,
+        });
 
         this.client.on(Events.Warn, (msg) => {
             this.logger.warn('discord.js warning', {
