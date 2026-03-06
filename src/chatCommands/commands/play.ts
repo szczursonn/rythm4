@@ -1,6 +1,7 @@
-import { escapeMarkdown, SlashCommandStringOption } from 'discord.js';
+import { escapeMarkdown, SlashCommandStringOption, type TextBasedChannel } from 'discord.js';
 import type { HybridChatCommand } from '../index.ts';
 import { ICONS } from '../../icons.ts';
+import { DirectUrlTrack } from '../../tracks/DirectUrlTrack.ts';
 
 const ALIASES = ['play', 'p'];
 const QUERY_OPTION_NAME = 'query';
@@ -9,8 +10,10 @@ export const playHybridChatCommand = {
     classic: {
         aliases: ALIASES,
         helpTitle: `${ICONS.CMD.PLAY} Play`,
-        argsParser: (_, argsLine) => ({
+        argsParser: (message, argsLine) => ({
             query: argsLine,
+            referencedChannelId: message.reference?.channelId,
+            referencedMessageId: message.reference?.messageId,
         }),
     },
     slash: {
@@ -26,13 +29,15 @@ export const playHybridChatCommand = {
         ],
         argsParser: (interaction) => ({
             query: interaction.options.getString(QUERY_OPTION_NAME)?.trim() ?? '',
+            referencedChannelId: undefined,
+            referencedMessageId: undefined,
         }),
     },
     contexts: {
         guild: true,
     },
     handler: async (ctx) => {
-        if (!ctx.args.query) {
+        if (!ctx.args.query && !ctx.args.referencedMessageId) {
             // this can only happen for classic commands
             await ctx.upsertReply({
                 content: `${ICONS.USER_ERROR} **Usage:** \`${ctx.bot.hybridChatCommandManager.classicCommandPrefix}${ALIASES[0]} <search term | url>\``,
@@ -55,6 +60,29 @@ export const playHybridChatCommand = {
             await ctx.upsertReply({
                 content: `${ICONS.USER_ERROR} **You must be in the same voice channel as me!**`,
                 ephemeral: true,
+            });
+            return;
+        }
+
+        if (!ctx.args.query && ctx.args.referencedChannelId && ctx.args.referencedMessageId) {
+            const channel = await ctx.bot.client.channels.fetch(ctx.args.referencedChannelId);
+            if (!channel || !channel.isTextBased()) {
+                throw new Error('referencedChannelId is not text based or does not exist');
+            }
+
+            const attachment = (await channel.messages.fetch(ctx.args.referencedMessageId)).attachments.first();
+            if (!attachment) {
+                await ctx.upsertReply({
+                    content: `${ICONS.USER_ERROR} **The replied message has no attachments**`,
+                });
+                return;
+            }
+
+            const track = new DirectUrlTrack(attachment.name, attachment.url);
+            session.enqueue(track);
+
+            await ctx.upsertReply({
+                content: `${ICONS.TRACK} **Added [${escapeMarkdown(track.title)}](${track.url}) to the queue!**`,
             });
             return;
         }
@@ -134,4 +162,4 @@ export const playHybridChatCommand = {
             };
         });
     },
-} satisfies HybridChatCommand<{ query: string }>;
+} satisfies HybridChatCommand<{ query: string; referencedMessageId?: string; referencedChannelId?: string }>;
