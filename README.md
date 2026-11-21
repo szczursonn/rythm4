@@ -2,53 +2,26 @@
 
 ## Awesome Discord Music Bot
 
-Inspired by [Rythm](https://rythm.fm/)  
-**Requires at least Node.js 23.6.0**
+Inspired by [Rythm](https://rythm.fm/)
 
-## Installation
+## Requirements (if not using Docker)
 
-```bash
-# Clone this repository
-git clone https://github.com/szczursonn/rythm4
-cd rythm4
+- [Node.js](https://nodejs.org/) >=24 and <=26.10.0 [(26.11.0 introduced a bug)](https://github.com/nodejs/node/pull/66596)
+- [ffmpeg](https://www.ffmpeg.org/) on PATH
 
-# Install dependencies
-npm install
+## Running with Docker
 
-# Create the config file and set values
-nano config.toml
+Create `config.toml` in a `data` directory, then:
 
-# Start the bot
-npm start
+```sh
+docker build -t rythm4 .
+docker run -d --name rythm4 --restart on-failure -v ./data:/data rythm4
 ```
 
-## Update
+`data` must be writable by the uid `1000`. (`sudo chown -R 1000:1000 data`)
 
-```bash
-# Pull new changes
-git pull
+### Innertube notes (what shenanigans is Google up to as of the current version)
 
-# Update dependencies
-npm install
-
-# Clear youtubei.js cache
-rm -rf ./innertube-cache
-
-# Start the bot
-npm start
-```
-
-## Configuration
-
-Create config.toml file and set following values:
-
--   **discord_token**: Bot token from https://discord.com/developers/applications
--   **command_prefix** (optional): Prefix for commands, defaults to `!`
--   **debug** (optional): If true, enables debug logging
--   **youtube_cookie** (optional): youtube cookie for accessing age-restricted videos and improved stability
--   **activity_update_interval** (optional): how often to rotate activities
--   **\[\[activities\]\]**: list of activities to rotate through
-    -   **name**: name of activity
-    -   **type**: activity type, as seen in discord docs ("PLAYING", "LISTENING", etc.)
--   **\[\[admins\]\]**: list of admin users that have access to extra commands
-    -   **id**: discord user id
+- `WEB`, `MWEB` are SABR-only (unsupported yet, todo)
+- `WEB_REMIX` (default) returns direct URLs without PO tokens (PO tokens enabled by default anyway for future compatibility)
+- `TVHTML5_SIMPLY`, `iOS` seem to be returning direct URLs too, not tested extensively

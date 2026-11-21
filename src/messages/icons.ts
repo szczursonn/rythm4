@@ -1,0 +1,16 @@
+export const ICON_SUCCESS = '✅';
+export const ICON_APP_ERROR = '🥀';
+export const ICON_USER_ERROR = '⁉️';
+export const ICON_TRACK = '🎵';
+export const ICON_TRACKS = '🎶';
+export const ICON_SEARCH = '🔍';
+export const ICON_LOADING = '⏳';
+export const ICON_LOOP = '🔄';
+export const ICON_LOOP_ON = '🟢';
+export const ICON_LOOP_OFF = '🔴';
+export const ICON_LEAVE = '👋';
+export const ICON_QUEUE = '📄';
+export const ICON_QUEUE_CLEAR = '🧹';
+export const ICON_QUEUE_SHUFFLE = '🔀';
+export const ICON_PLAY = '⏯️';
+export const ICON_SKIP = '⏭️';

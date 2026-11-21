@@ -1,4 +1,2 @@
-/node_modules
-/innertube-cache
-/logs
-/config.toml
+node_modules/
+data/

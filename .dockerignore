@@ -1,0 +1,15 @@
+node_modules
+data
+.git
+.github
+.vscode
+**/*.test.ts
+vitest.config.ts
+eslint.config.js
+tsconfig.json
+.prettierignore
+.prettierrc.json
+README.md
+UNLICENSE
+Dockerfile
+.dockerignore
